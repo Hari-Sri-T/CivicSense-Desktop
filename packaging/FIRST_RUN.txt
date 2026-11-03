@@ -1,0 +1,31 @@
+CivicSense Desktop
+https://github.com/Hari-Sri-T/CivicSense-Desktop
+
+1. Extract the entire archive before starting the application.
+   Windows: open CivicSense.exe. Keep _internal beside it.
+   macOS: drag CivicSense.app into Applications and open it.
+   Linux: open CivicSense, or run ./CivicSense from this folder.
+2. Keep internet available on first launch. The app automatically downloads
+   Qwen2.5-3B-Instruct Q4_K_M (about 2.1 GB) and MiniLM embeddings.
+3. The loading screen shows preparation status. Retry setup if a download fails.
+4. Attach the included sample_policy.txt, PDF, DOCX or TXT file and ask a question.
+5. Models are reused from your OS application-data directory on later launches.
+
+Python, LM Studio and cloud API keys are not needed for this desktop package.
+Allow several GB for model files and dependencies; 16 GB RAM is preferable.
+Windows needs WebView2; Linux needs a compatible graphical desktop.
+These preview packages are unsigned. Verify the download source before opening.
+Do not run a privileged shell or disable OS protections to use the app.
+
+Ctrl + / Ctrl =: larger text. Ctrl -: smaller text. Ctrl 0: reset.
+Documents and chat are held in memory. Questions are independent; no chat memory.
+This tool explains document content and can make mistakes. It is not legal advice.
+
+Advanced diagnostics:
+  CivicSense --self-test --self-test-report check.json
+  Add --with-models to download/load models and run a real document question.
+On Windows the executable is CivicSense.exe. On macOS it is inside
+CivicSense.app/Contents/MacOS/CivicSense.
+
+See the online README and docs/DESKTOP.md for setup, research and license details.
+The model cache is retained when the application is uninstalled.

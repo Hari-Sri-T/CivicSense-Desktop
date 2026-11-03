@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark">
   <title>CivicSense</title>
-  <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='civicsense-logo.png') }}" type="image/png">
   <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
   <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </head>
@@ -21,10 +21,22 @@
   <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 20V4m-6 6 6-6 6 6"/></symbol>
 </defs></svg>
-<div class="app-shell">
+<section id="startup-screen" class="startup-screen" aria-labelledby="startup-title" data-phase="starting">
+  <div class="startup-content">
+    <img class="startup-logo" src="{{ url_for('static', filename='civicsense-logo.png') }}" alt="Civic Sense logo" width="148" height="148">
+    <h1 id="startup-title">Civic <span>Sense</span></h1>
+    <p class="startup-subtitle">Local document intelligence</p>
+    <div class="startup-progress" role="progressbar" aria-label="Preparing local models"><span></span></div>
+    <p id="startup-message" class="startup-message" role="status" aria-live="polite">Connecting to your local workspace…</p>
+    <pre id="startup-error" class="startup-error" hidden></pre>
+    <div class="startup-actions"><button id="startup-retry" class="standard-button" hidden>Retry setup</button><button id="startup-settings" class="startup-settings">Open model settings</button></div>
+  </div>
+  <span class="startup-version">CivicSense Desktop · 0.1.0</span>
+</section>
+<div class="app-shell" id="app-shell" inert>
   <header class="modelbar">
     <button class="icon-button" id="sidebar-toggle" title="Toggle sidebar" aria-label="Toggle sidebar" aria-expanded="true"><svg><use href="#i-panel"/></svg></button>
-    <div class="app-name">CivicSense <span>0.1.0</span></div>
+    <div class="app-name"><img src="{{ url_for('static', filename='civicsense-logo.png') }}" alt="" width="22" height="22">CivicSense <span>0.1.0</span></div>
     <div class="model-controls"><button id="status-shortcut" class="model-selector" title="Open model settings"><svg><use href="#i-model"/></svg><span id="status-label">Preparing model…</span><span class="chevron">⌄</span></button></div>
     <button id="sources-toggle" class="toolbar-button" aria-pressed="false" title="Toggle source passages"><svg><use href="#i-sliders"/></svg><span>Sources</span><span id="evidence-count">0</span></button>
   </header>
@@ -62,14 +74,14 @@
     </section>
     <section id="models-view" class="view settings-view" hidden>
       <div class="page-heading"><h1>My Models</h1><span>Models used by CivicSense</span></div>
-      <div class="model-table"><div class="model-table-header"><span>Model</span><span>Format</span><span>Size</span></div><div class="model-row"><div><svg><use href="#i-model"/></svg><div><strong>Qwen2.5-3B-Instruct</strong><small>Qwen / Qwen2.5-3B-Instruct-GGUF</small></div></div><span>Q4_K_M</span><span>2.1 GB</span></div><div class="model-row"><div><svg><use href="#i-model"/></svg><div><strong>all-MiniLM-L6-v2</strong><small>sentence-transformers / all-MiniLM-L6-v2</small></div></div><span>Embeddings</span><span>384 dim</span></div></div>
+      <div class="model-table"><div class="model-table-header"><span>Model</span><span>Format</span><span>Size</span></div><div class="model-row generation-model"><div><svg><use href="#i-model"/></svg><div><strong>Qwen2.5-3B-Instruct</strong><small>Qwen / Qwen2.5-3B-Instruct-GGUF</small></div></div><span>Q4_K_M</span><span>2.1 GB</span></div><div class="model-row"><div><svg><use href="#i-model"/></svg><div><strong>all-MiniLM-L6-v2</strong><small>sentence-transformers / all-MiniLM-L6-v2</small></div></div><span>Embeddings</span><span>384 dim</span></div></div>
       <div class="setup-section"><h2 id="setup-title">Preparing models</h2><p id="setup-message" aria-live="polite">Checking local files…</p><pre id="setup-error" hidden></pre><button id="retry-models" class="standard-button">Prepare / retry models</button></div>
       <h2 class="section-heading">Configuration</h2><dl class="configuration"><dt>Inference backend</dt><dd id="backend-label">Embedded</dd><dt>Execution</dt><dd id="execution-label">CPU</dd><dt>Context length</dt><dd>8192 tokens</dd><dt>Generation temperature</dt><dd>0.1</dd><dt>Maximum output</dt><dd>4096 tokens</dd><dt>Model cache</dt><dd><code id="cache-path">Checking…</code></dd></dl>
       <div class="settings-notes"><p>Qwen2.5-3B is the model selected in the paper’s evaluation. Files download automatically on first launch and are reused afterwards. Initial setup requires internet.</p><p>Weights use the <a href="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/blob/main/LICENSE" target="_blank" rel="noreferrer">Qwen Research License</a>. This desktop runtime must be evaluated separately before reporting the paper’s exact measurements.</p></div>
     </section>
     <section id="about-view" class="view settings-view" hidden><div class="page-heading"><h1>About CivicSense</h1><span>Version 0.1.0</span></div><p class="about-description">A local application for asking questions about civic and legal documents. Answers include explanations and the passages retrieved from your document.</p><h2 class="section-heading">How it works</h2><ol class="about-steps"><li>Extract text from a PDF, DOCX or TXT file.</li><li>Index overlapping passages with MiniLM embeddings.</li><li>Retrieve the five passages closest to your question.</li><li>Generate an answer with Qwen2.5-3B and show the source text.</li></ol><h2 class="section-heading">Workspace</h2><p class="about-description">One active document. The index and displayed conversation are held in memory and cleared when the application closes. Questions are independent; the model does not receive previous messages. Scanned PDFs need OCR before upload.</p><h2 class="section-heading">Research</h2><p class="about-description">The repository includes the original experiments and results, plus an evidence audit explaining their limits. Inspect the source text before relying on an answer.</p><a class="repository-link" href="https://github.com/Hari-Sri-T/CivicSense-Desktop" target="_blank" rel="noreferrer">github.com/Hari-Sri-T/CivicSense-Desktop ↗</a></section>
   </main>
-  <footer class="statusbar"><span class="footer-brand">CivicSense <span>0.1.0</span></span><span class="mode-label">Local</span><span id="footer-document">No document indexed</span><span class="statusbar-spacer"></span><span>CONTEXT <b>8192</b></span><span>EMBEDDINGS <b>MiniLM</b></span><span>RETRIEVAL <b>TOP 5</b></span></footer>
+  <footer class="statusbar"><span class="footer-brand">CivicSense <span>0.1.0</span></span><span class="mode-label">Local</span><span id="footer-document">No document indexed</span><span class="statusbar-spacer"></span><span id="text-size-label" role="status" aria-live="polite" title="Ctrl + / Ctrl − to resize text; Ctrl 0 to reset">TEXT 100%</span><span>CONTEXT <b>8192</b></span><span>EMBEDDINGS <b>MiniLM</b></span><span>RETRIEVAL <b>TOP 5</b></span></footer>
 </div>
 <input id="file-input" type="file" accept=".pdf,.docx,.txt" class="visually-hidden">
 </body>

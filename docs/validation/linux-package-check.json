@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "resources": true,
+  "pdf_parser": true,
+  "generation_binding": "Llama",
+  "embedding_binding": "SentenceTransformer",
+  "models_checked": true,
+  "model_answer": "Seven days' written notice is needed to cancel a reading-room membership."
+}

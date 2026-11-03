@@ -4,6 +4,8 @@ let documentReady = false;
 let modelsReady = false;
 let busy = false;
 let uploading = false;
+let textSizePercent = 100;
+let startupComplete = false;
 
 function notice(message = "") {
   $("notice").textContent = message;
@@ -46,10 +48,37 @@ function setDocument(document) {
   $("footer-document").textContent = document ? `${document.chunk_count} passages indexed · ${document.name}` : "No document indexed";
   controls();
 }
+function dismissStartup() {
+  startupComplete = true;
+  $("startup-screen").hidden = true;
+  $("app-shell").inert = false;
+}
+function renderStartup(model) {
+  if (startupComplete) return;
+  if (model.phase === "ready") { dismissStartup(); return; }
+  $("startup-screen").dataset.phase = model.phase;
+  const message = model.message || "Preparing local models…";
+  if ($("startup-message").textContent !== message) $("startup-message").textContent = message;
+  $("startup-error").hidden = !model.error;
+  $("startup-error").textContent = model.error || "";
+  $("startup-retry").hidden = model.phase !== "error";
+}
+$("startup-settings").addEventListener("click", () => {
+  dismissStartup();
+  view("models");
+  $("retry-models").focus();
+});
+$("startup-retry").addEventListener("click", async () => {
+  $("startup-retry").disabled = true;
+  try { renderStartup(await post("/api/models/prepare")); await pollStatus(); }
+  catch (error) { renderStartup({phase: "error", message: "Could not reconnect to the local service", error: error.message}); }
+  finally { $("startup-retry").disabled = false; }
+});
 async function pollStatus() {
   try {
     const status = await api("/api/status");
     const model = status.runtime;
+    renderStartup(model);
     modelsReady = model.phase === "ready";
     $("status-dot").className = `status-dot ${modelsReady ? "ready" : model.phase === "error" ? "error" : ""}`;
     $("model-dot").className = `nav-dot ${modelsReady ? "ready" : ""}`;
@@ -67,6 +96,7 @@ async function pollStatus() {
   } catch (error) {
     modelsReady = false;
     $("status-label").textContent = "Local server unavailable";
+    renderStartup({phase: "error", message: "Could not connect to the local service", error: error.message});
     controls();
   }
 }
@@ -109,7 +139,25 @@ $("new-session").addEventListener("click", async () => {
   catch (error) { notice(error.message); }
 });
 document.addEventListener("keydown", (event) => {
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") { event.preventDefault(); if (!busy && !uploading) $("new-session").click(); }
+  if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+  if (["+", "=", "Add"].includes(event.key)) {
+    event.preventDefault();
+    textSizePercent = Math.min(200, textSizePercent + 10);
+  } else if (["-", "_", "Subtract"].includes(event.key)) {
+    event.preventDefault();
+    textSizePercent = Math.max(70, textSizePercent - 10);
+  } else if (event.key === "0") {
+    event.preventDefault();
+    textSizePercent = 100;
+  } else {
+    if (event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      if (!busy && !uploading) $("new-session").click();
+    }
+    return;
+  }
+  document.documentElement.style.setProperty("--text-scale", textSizePercent / 100);
+  $("text-size-label").textContent = `TEXT ${textSizePercent}%`;
 });
 function addMessage(role, text) {
   $("welcome").hidden = true;
@@ -119,7 +167,7 @@ function addMessage(role, text) {
   label.className = "message-role";
   label.textContent = role === "user" ? "YOU" : "CIVICSENSE";
   if (role !== "user") {
-    const icon = document.createElement("img"); icon.src = "/static/icon.svg"; icon.alt = ""; label.prepend(icon);
+    const icon = document.createElement("img"); icon.src = "/static/civicsense-logo.png"; icon.alt = ""; label.prepend(icon);
   }
   const content = document.createElement("div"); content.className = "message-text"; content.textContent = text;
   article.append(label, content); $("messages").append(article);

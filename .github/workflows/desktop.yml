@@ -1,6 +1,8 @@
-name: Build desktop candidates
+name: Build desktop releases
 on:
   workflow_dispatch:
+  push:
+    tags: ['v*']
 permissions:
   contents: read
 jobs:
@@ -8,8 +10,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-22.04
+            name: Linux-x64
+          - os: windows-2022
+            name: Windows-x64
+          - os: macos-14
+            name: macOS-arm64
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -18,15 +30,71 @@ jobs:
           cache: pip
       - name: Install CPU Torch on Windows and Linux
         if: runner.os != 'macOS'
-        run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
-      - name: Install native dependencies
-        run: python -m pip install -r requirements-desktop.txt pyinstaller --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+        run: python -m pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu
+      - name: Install desktop build dependencies
+        run: python -m pip install -r requirements-build.txt --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
       - name: Install Linux Qt backend
         if: runner.os == 'Linux'
         run: python -m pip install 'pywebview[qt]'
-      - run: python scripts/build_desktop.py
+      - name: Install Windows installer compiler
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe')) {
+            choco install innosetup --yes --no-progress
+          }
+      - name: Build native application
+        run: python scripts/build_desktop.py
+      - name: Verify frozen application
+        run: |
+          python - <<'PY'
+          import json, pathlib, subprocess, sys
+          executable = pathlib.Path('dist/CivicSense.app/Contents/MacOS/CivicSense' if sys.platform == 'darwin' else 'dist/CivicSense/CivicSense' + ('.exe' if sys.platform == 'win32' else ''))
+          report = pathlib.Path('dist/self-test.json').resolve()
+          subprocess.run([str(executable.resolve()), '--self-test', '--self-test-report', str(report)], check=True, timeout=180)
+          result = json.loads(report.read_text())
+          assert result['status'] == 'passed', result
+          print(result)
+          PY
+      - name: Package application and installers
+        run: python scripts/package_desktop.py --version "${GITHUB_REF_NAME#v}"
+        if: startsWith(github.ref, 'refs/tags/')
+      - name: Package manually triggered build
+        if: github.event_name == 'workflow_dispatch'
+        run: python scripts/package_desktop.py
       - uses: actions/upload-artifact@v4
         with:
-          name: CivicSense-${{ runner.os }}-${{ runner.arch }}
-          path: dist/
+          name: CivicSense-${{ matrix.name }}
+          path: dist/archives/*
           if-no-files-found: error
+          compression-level: 0
+      - name: Preserve build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostics-${{ matrix.name }}
+          path: |
+            dist/self-test.json
+            build/CivicSense/warn-CivicSense.txt
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: CivicSense-*
+          path: release-assets
+          merge-multiple: true
+      - name: Combine checksums
+        run: |
+          rm -f release-assets/SHA256SUMS.txt
+          cd release-assets
+          sha256sum *.zip *.tar.gz *.dmg *.exe > SHA256SUMS.txt
+      - name: Publish desktop preview release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release-assets/* --verify-tag --title "CivicSense Desktop $GITHUB_REF_NAME" --notes-file docs/RELEASE_NOTES.md --prerelease
