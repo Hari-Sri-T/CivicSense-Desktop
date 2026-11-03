@@ -37,7 +37,7 @@ def collect_notices(destination):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--version", default="0.1.0-preview.1")
+    parser.add_argument("--version", default="0.1.0-preview.2")
     args = parser.parse_args()
     if not re.fullmatch(r"[0-9A-Za-z][0-9A-Za-z.+-]*", args.version):
         parser.error("Invalid release version")

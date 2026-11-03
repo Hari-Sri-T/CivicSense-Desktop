@@ -56,3 +56,5 @@ Unsigned builds may trigger platform security prompts. Signing and notarization 
 The app is for one local user and one active document. Do not expose its port to a network or run it as a shared server.
 
 Packaged diagnostics: run the executable with `--self-test --self-test-report check.json`. Add `--with-models` to prepare the real models and run a document question. The default self-test uses no model downloads. The bundled `FIRST_RUN.txt`, sample policy and dependency license directory accompany native packages.
+
+The publisher’s llama-cpp-python 0.3.36 macOS arm64 wheel failed ZIP integrity checks during release preparation. The macOS workflow builds the same version from source with Metal disabled for the portable CPU configuration. Source users on macOS should follow the explicit compiler/setup commands in the README. Windows and Linux use their validated wheels.

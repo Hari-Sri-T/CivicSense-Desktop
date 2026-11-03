@@ -89,9 +89,12 @@ python3.12 -m venv .venv
 
 ### macOS — Apple Silicon
 
+Install Xcode command line tools first if they are absent (`xcode-select --install`). The current macOS inference-engine wheel is corrupt, so this setup builds the same version from source:
+
 ```bash
 python3.12 -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
+CMAKE_ARGS="-DGGML_METAL=OFF" CMAKE_BUILD_PARALLEL_LEVEL=3 .venv/bin/python -m pip install --no-cache-dir --no-binary=llama-cpp-python llama-cpp-python==0.3.36
 .venv/bin/python -m pip install -r requirements-desktop.txt --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
 .venv/bin/python desktop.py
 ```
@@ -202,7 +205,7 @@ python -m pip install -r requirements-build.txt --extra-index-url https://abetle
 # Linux only:
 python -m pip install 'pywebview[qt]'
 python scripts/build_desktop.py
-python scripts/package_desktop.py --version 0.1.0-preview.1
+python scripts/package_desktop.py --version 0.1.0-preview.2
 ```
 
 Windows installer creation also requires Inno Setup 6. macOS disk images use `hdiutil`; Linux archives use Python's tar support. The build bundles Python and runtime dependencies, **not model weights, credentials or personal documents**. The app downloads model weights into the user's cache when needed.
