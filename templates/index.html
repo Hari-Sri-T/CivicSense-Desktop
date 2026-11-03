@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="dark">
+  <title>CivicSense</title>
+  <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<svg class="svg-definitions" aria-hidden="true"><defs>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 4h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8l-5 3V6a2 2 0 0 1 2-2Z"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V5h7l2 3h9v12H3Z"/><path d="M3 11h18"/></symbol>
+  <symbol id="i-model" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 1v4m6-4v4M9 19v4m6-4v4M1 9h4m-4 6h4m14-6h4m-4 6h4M9 9h6v6H9Z"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M5 2h9l5 5v15H5Zm9 0v6h5M8 12h8m-8 4h8"/></symbol>
+  <symbol id="i-attach" viewBox="0 0 24 24"><path d="m8 13 7-7a3 3 0 0 1 4 4L9 20a5 5 0 0 1-7-7L12 3a3 3 0 0 1 4 0M6 15l9-9"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M3 6h7m5 0h6M3 12h12m5 0h1M3 18h2m5 0h11"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18m-3-13v8"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 20V4m-6 6 6-6 6 6"/></symbol>
+</defs></svg>
+<div class="app-shell">
+  <header class="modelbar">
+    <button class="icon-button" id="sidebar-toggle" title="Toggle sidebar" aria-label="Toggle sidebar" aria-expanded="true"><svg><use href="#i-panel"/></svg></button>
+    <div class="app-name">CivicSense <span>0.1.0</span></div>
+    <div class="model-controls"><button id="status-shortcut" class="model-selector" title="Open model settings"><svg><use href="#i-model"/></svg><span id="status-label">Preparing model…</span><span class="chevron">⌄</span></button></div>
+    <button id="sources-toggle" class="toolbar-button" aria-pressed="false" title="Toggle source passages"><svg><use href="#i-sliders"/></svg><span>Sources</span><span id="evidence-count">0</span></button>
+  </header>
+  <nav class="activity-bar" aria-label="Main navigation">
+    <button class="activity selected" data-view="chat" title="Chat" aria-label="Document chat" aria-current="page"><svg><use href="#i-chat"/></svg></button>
+    <button class="activity models-activity" data-view="models" title="My Models" aria-label="Local models"><svg><use href="#i-folder"/></svg><span class="nav-dot" id="model-dot"></span></button>
+    <div class="activity-spacer"></div>
+    <button class="activity download-activity" id="downloads-shortcut" title="Model downloads" aria-label="Model downloads"><svg><use href="#i-down"/></svg></button>
+    <button class="activity info-activity" data-view="about" title="About CivicSense" aria-label="About CivicSense"><svg><use href="#i-info"/></svg></button>
+  </nav>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-heading"><strong>Chats</strong><button id="new-session" class="icon-button" title="New workspace · Ctrl+K" aria-label="New workspace"><svg><use href="#i-plus"/></svg></button></div>
+    <div class="chat-list"><div class="chat-list-label">Current session</div><button id="active-chat" class="chat-entry"><svg><use href="#i-chat"/></svg><span id="chat-name">Untitled document</span></button></div>
+    <div class="documents-section"><div class="sidebar-section-title">Documents <span id="document-count">0</span></div><div id="document-card" class="document-card"><svg class="file-glyph"><use href="#i-file"/></svg><strong id="document-name">No document attached</strong><small id="document-meta">PDF, DOCX or TXT</small></div><label class="attach-document" for="file-input" role="button" tabindex="0"><svg><use href="#i-plus"/></svg>Attach document</label><p class="upload-hint">One document per session. Attaching another replaces the current document.</p></div>
+    <div class="sidebar-bottom"><span class="status-dot" id="status-dot"></span><span id="sidebar-runtime">Local runtime</span></div>
+  </aside>
+  <main>
+    <div class="tabbar"><span id="view-title" class="active-tab"><svg><use href="#i-chat"/></svg>Document chat</span><span id="tab-document" class="tab-document"></span></div>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <section id="chat-view" class="view chat-layout">
+      <div class="conversation" id="dropzone">
+        <div id="messages" class="messages" role="log" aria-label="Document conversation" aria-live="polite">
+          <div id="welcome" class="welcome">
+            <svg class="empty-chat-icon" aria-hidden="true"><use href="#i-chat"/></svg>
+            <h1>New document chat</h1>
+            <p>Attach a document, then ask a question about it.</p>
+            <label class="open-document" for="file-input" role="button" tabindex="0"><svg><use href="#i-attach"/></svg>Attach document<span>PDF · DOCX · TXT</span></label>
+            <div class="suggestions" aria-label="Example questions"><button data-question="What are the main obligations in this document?"><span>What are the main obligations?</span><span>↗</span></button><button data-question="What does this document say about termination?"><span>What are the termination conditions?</span><span>↗</span></button><button data-question="What personal information is collected according to this document?"><span>What personal information is collected?</span><span>↗</span></button></div>
+            <small>Files are processed locally. You can also drag a document into this window.</small>
+          </div>
+        </div>
+        <form id="question-form" class="composer-wrap"><div class="composer"><label for="question" class="visually-hidden">Ask about your document</label><textarea id="question" rows="3" maxlength="4000" placeholder="Type a message and press Enter to send…"></textarea><div class="composer-bottom"><label for="file-input" class="icon-button attach-button" role="button" tabindex="0" title="Attach document"><svg><use href="#i-attach"/></svg><span class="visually-hidden">Attach document</span></label><span id="composer-context">Attach a document to begin</span><button id="send" type="submit" disabled><span>Send</span><svg><use href="#i-arrow"/></svg></button></div></div><div class="composer-note"><span>Enter to send · Shift+Enter for a new line</span><span>General information, not legal advice</span></div></form>
+      </div>
+      <aside class="evidence-panel" id="evidence-panel" hidden><div class="evidence-title"><strong>Retrieved sources</strong><button id="sources-close" class="icon-button" aria-label="Close sources">×</button></div><p class="evidence-intro">Passages used for the latest answer.</p><div id="evidence"><div class="evidence-empty">No sources yet. Ask a question about your document.</div></div><dl class="retrieval-settings"><dt>Retrieval</dt><dd>Cosine similarity</dd><dt>Passages</dt><dd>5</dd><dt>Chunk size</dt><dd>350 words</dd><dt>Overlap</dt><dd>50 words</dd></dl></aside>
+    </section>
+    <section id="models-view" class="view settings-view" hidden>
+      <div class="page-heading"><h1>My Models</h1><span>Models used by CivicSense</span></div>
+      <div class="model-table"><div class="model-table-header"><span>Model</span><span>Format</span><span>Size</span></div><div class="model-row"><div><svg><use href="#i-model"/></svg><div><strong>Qwen2.5-3B-Instruct</strong><small>Qwen / Qwen2.5-3B-Instruct-GGUF</small></div></div><span>Q4_K_M</span><span>2.1 GB</span></div><div class="model-row"><div><svg><use href="#i-model"/></svg><div><strong>all-MiniLM-L6-v2</strong><small>sentence-transformers / all-MiniLM-L6-v2</small></div></div><span>Embeddings</span><span>384 dim</span></div></div>
+      <div class="setup-section"><h2 id="setup-title">Preparing models</h2><p id="setup-message" aria-live="polite">Checking local files…</p><pre id="setup-error" hidden></pre><button id="retry-models" class="standard-button">Prepare / retry models</button></div>
+      <h2 class="section-heading">Configuration</h2><dl class="configuration"><dt>Inference backend</dt><dd id="backend-label">Embedded</dd><dt>Execution</dt><dd id="execution-label">CPU</dd><dt>Context length</dt><dd>8192 tokens</dd><dt>Generation temperature</dt><dd>0.1</dd><dt>Maximum output</dt><dd>4096 tokens</dd><dt>Model cache</dt><dd><code id="cache-path">Checking…</code></dd></dl>
+      <div class="settings-notes"><p>Qwen2.5-3B is the model selected in the paper’s evaluation. Files download automatically on first launch and are reused afterwards. Initial setup requires internet.</p><p>Weights use the <a href="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/blob/main/LICENSE" target="_blank" rel="noreferrer">Qwen Research License</a>. This desktop runtime must be evaluated separately before reporting the paper’s exact measurements.</p></div>
+    </section>
+    <section id="about-view" class="view settings-view" hidden><div class="page-heading"><h1>About CivicSense</h1><span>Version 0.1.0</span></div><p class="about-description">A local application for asking questions about civic and legal documents. Answers include explanations and the passages retrieved from your document.</p><h2 class="section-heading">How it works</h2><ol class="about-steps"><li>Extract text from a PDF, DOCX or TXT file.</li><li>Index overlapping passages with MiniLM embeddings.</li><li>Retrieve the five passages closest to your question.</li><li>Generate an answer with Qwen2.5-3B and show the source text.</li></ol><h2 class="section-heading">Workspace</h2><p class="about-description">One active document. The index and displayed conversation are held in memory and cleared when the application closes. Questions are independent; the model does not receive previous messages. Scanned PDFs need OCR before upload.</p><h2 class="section-heading">Research</h2><p class="about-description">The repository includes the original experiments and results, plus an evidence audit explaining their limits. Inspect the source text before relying on an answer.</p><a class="repository-link" href="https://github.com/Hari-Sri-T/CivicSense-Desktop" target="_blank" rel="noreferrer">github.com/Hari-Sri-T/CivicSense-Desktop ↗</a></section>
+  </main>
+  <footer class="statusbar"><span class="footer-brand">CivicSense <span>0.1.0</span></span><span class="mode-label">Local</span><span id="footer-document">No document indexed</span><span class="statusbar-spacer"></span><span>CONTEXT <b>8192</b></span><span>EMBEDDINGS <b>MiniLM</b></span><span>RETRIEVAL <b>TOP 5</b></span></footer>
+</div>
+<input id="file-input" type="file" accept=".pdf,.docx,.txt" class="visually-hidden">
+</body>
+</html>

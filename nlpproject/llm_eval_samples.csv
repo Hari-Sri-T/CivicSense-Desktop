@@ -1,0 +1,33 @@
+sample_id,text,true_label
+0,"NovaTech Solutions (NTS) was ranked #1 in the annual Forbes '100 Best Corporate Citizens' list, citing its strong performance in sustainability, community support, and employee relations.",2
+1,"LogiStream Inc. is partnering with 'AidFlow Global' to lend its advanced logistics platform, using AI to optimize supply chains for delivering medical supplies in disaster zones.",2
+2,"The FTC is investigating MedEquip Solutions (MEDI) for allegedly restricting 'right to repair', by making it impossible for hospitals to service their own devices, forcing them into costly contracts.",0
+3,"A coalition of 50 advertisers has paused spending with NewsCorp Global (MEDIA), demanding the company strengthen its policies against platforming 'demonstrably false' misinformation.",0
+4,"Foresta Timber (WOOD) has had its critical Forest Stewardship Council (FSC) certification revoked after an audit found 'systemic' violations, including logging in protected old-growth forests.",0
+5,"CyberSec Global (CYBR) beat Q3 EPS estimates, but its forward-looking 'billings' metric grew at only 10%, down from 30% last year, signaling a major slowdown in new sales.",1
+6,"Vertex Capital (FIN) has joined the Net-Zero Asset Managers initiative, committing to support the goal of net-zero emissions by 2050 and align its $500B AUM with this target.",2
+7,"NextGen Automotive reported a 15% beat on Q3 profit, but announced it would miss its full-year EV delivery target by 5% due to supply chain constraints.",1
+8,NovaTech Solutions (NTS) announced a new target: all its hardware and software products will be 100% carbon-neutral in their manufacturing and operation by 2030.,2
+9,"DevCore Software's (DEV) stock is down 10% after a regulatory filing revealed the CEO has pledged a significant portion of his equity as collateral for a personal loan, raising governance concerns.",0
+10,"Innovate Dynamics posted a 20% rise in Q3 profit, beating expectations. The company also increased its R&D budget by 30%, focusing on next-gen products. No new ESG data was provided.",1
+11,"An investigative report alleges FastFashion Co. (FASH) is routinely destroying and burning millions of dollars of unsold stock, despite its public pledges on sustainability.",0
+12,"CloudSphere announced a new data center design that uses 100% recycled water for cooling, reducing its water consumption by 90% compared to traditional air-cooled centers.",2
+13,"A group of former employees is suing Digital Realms (GAME), alleging the company fostered a 'toxic crunch culture' that required 100-hour work weeks, in violation of labor laws.",0
+14,"InfraCore Build (INFT) has been awarded a $2 billion municipal contract to construct a new central transit hub, which is required to meet LEED Platinum and net-zero carbon standards.",2
+15,"Everest Reinsurance (RE) has sponsored a new $150M catastrophe bond, transferring North American hurricane risk to capital markets. A portion of proceeds will fund coastal resilience projects.",2
+16,Environmental regulators have launched a probe into Alpha Semiconductors (SEMI) over 'excessive and unlicensed' water consumption at its main fabrication plant during a regional drought.,0
+17,"Atlas Airways (AIR) has admitted to a significant data breach, with hackers accessing the personal data, including passport numbers, of 500,000 customers. The breach occurred two months ago.",0
+18,"Quantum Chipsets (CHIP) confirmed a major data breach, exposing personal information of over 1 million customers. The company's data security practices are now under investigation.",0
+19,The FTC is investigating NextDay Delivery (ECOM) over allegations it uses deceptive 'dark patterns' to lure customers into its 'Prime' subscription and makes it difficult to cancel.,0
+20,"K-12 Solutions (EDU), an ed-tech provider, admitted a data breach has exposed the personal records of 1.2 million students, including names, grades, and behavioral notes.",0
+21,"DataFlow (CLOUD) announced a new $300M data center that will be powered 100% by an adjacent geothermal power plant, ensuring 24/7 clean energy and high reliability.",2
+22,RetailCo (RETC) has agreed to pay $18M to settle a class-action lawsuit over alleged wage theft. The company did not admit wrongdoing but will upgrade its timecard systems.,0
+23,"CopperGate Capital (FIN), an active asset manager, beat Q3 earnings estimates. However, the firm reported another $5B in net asset outflows as clients continue to move to passive funds.",1
+24,"CoreWeave AI (TECH) is partnering with the 'AI for Good' foundation, providing its processing power and algorithms to help analyze satellite imagery for real-time deforestation alerts.",2
+25,"A class-action lawsuit has been filed against LineHaul (RTR), alleging its truck lease-to-own program for independent drivers is 'predatory' and traps them in debt to the company.",0
+26,"EnviroCo (ENVO) announced a $50M investment in a new pilot project for direct air capture (DAC) technology, partnering with two national labs to test its viability.",2
+27,"Healthea Inc. is partnering with 'Cure.AI' to implement an artificial intelligence platform across its hospitals, aiming to reduce diagnostic errors and improve patient outcomes.",2
+28,"Curia Pharma (PHRM) received full FDA approval for its new oncology drug, 'OncoBloc', for treating a rare form of leukemia. Analysts project $500M in peak annual sales.",2
+29,"Zephyr Auto (AUTO) reported in-line Q3 earnings, but its crucial EV division margin was only 5%, far below the 15% expected, due to high battery costs.",1
+30,"Regulators have opened an investigation into DataVault's (DAT) automated hiring platform, following complaints that its AI algorithms are discriminatory and lack transparency.",0
+31,"SkyLink (TCOM) reported Q3 subscriber growth that beat estimates by 8%. The company noted that a recent price hike resulted in 'minimal' churn, showing strong pricing power.",1

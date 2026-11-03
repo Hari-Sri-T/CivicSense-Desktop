@@ -1,0 +1,24 @@
+==============================================================================================================
+TABLE: LLM Comparison on CivicSense AI RAG Pipeline (LegalBench-RAG Subset)
+==============================================================================================================
+
+Model                                      |  Recall@5 |    MRR |  BERTScore |   BLEU |   chrF |  Latency(s)
+--------------------------------------------------------------------------------------------------------------
+llama-3.2-3b-instruct                      |   100.00% | 1.0000 |     0.8411 |   3.45 |  21.79 |     58.580s
+qwen2.5-3b-instruct                        |     0.00% | 0.0000 |     0.8396 |   0.00 |   0.00 |     33.969s
+mistralai/ministral-3-3b                   |   100.00% | 1.0000 |     0.8387 |   2.78 |  20.49 |     28.365s
+nvidia/nemotron-3-nano-4b                  |   100.00% | 1.0000 |     0.8167 |   0.92 |   9.41 |     19.791s
+microsoft/phi-4-mini-reasoning             |     0.00% | 0.0000 |     0.7944 |   0.00 |   0.15 |     71.346s
+google/gemma-3-4b                          |   100.00% | 1.0000 |     0.0000 |  15.55 |  39.44 |     28.210s
+--------------------------------------------------------------------------------------------------------------
+
+Notes:
+  - Recall@5: Whether the correct source document appears in top-5 retrieved chunks.
+  - MRR: Mean Reciprocal Rank of the correct source document.
+  - BERTScore F1: Semantic similarity between model answer and gold answer (range 0-1).
+  - BLEU/chrF: Lexical overlap metrics (lower due to generative/explanatory style).
+  - Latency: Average end-to-end query response time (embedding + retrieval + generation).
+  - Queries per model: 40 (subset of LegalBench-RAG)
+
+Embedding model fixed across all runs: all-MiniLM-L6-v2 (384-dim)
+Chunk size fixed across all runs: 350 words, 50-word overlap, Top-K=5

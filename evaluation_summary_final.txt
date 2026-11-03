@@ -1,0 +1,11 @@
+
+--- LLM AS JUDGE SUMMARY ---
+
+Average Faithfulness Score:
+0.6198
+
+Hallucination Rate:
+0.76 %
+
+Total Questions:
+6881

@@ -1,0 +1,584 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{placeins}
+\usepackage{booktabs}
+\usepackage{multirow}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{CivicSense AI: An Explainable Retrieval-Augmented Generation System for
+Public Document Understanding}
+
+\author{
+  % --- Row 1: Three Authors ---
+  \begin{minipage}[t]{0.3\textwidth}
+    \centering
+    \textbf{Hari Sri Shanmukha Sai Tanniru} \\
+    \textit{\small Symbiosis Institute of Technology} \\
+    \textit{\small Symbiosis International (Deemed University)} \\
+    {\small Pune, Maharashtra 412115, India} \\
+    {\small ORCID: 0009-0001-4348-1559}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.3\textwidth}
+    \centering
+    \textbf{Sahil Awatramani} \\
+    \textit{\small Symbiosis Institute of Technology} \\
+    \textit{\small Symbiosis International (Deemed University)} \\
+    {\small Pune, Maharashtra 412115, India} \\
+    {\small ORCID: 0009-0000-2323-967X}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.3\textwidth}
+    \centering
+    \textbf{Tanishq Sangle} \\
+    \textit{\small Symbiosis Institute of Technology} \\
+    \textit{\small Symbiosis International (Deemed University)} \\
+    {\small Pune, Maharashtra 412115, India} \\
+    {\small ORCID: 0009-0000-0210-2068}
+  \end{minipage}
+
+  \and % This is critical for standard classes to break the row
+
+  \vspace{0.5cm} % Extra padding to prevent overlapping
+\\ %
+  % --- Row 2: Two Authors ---
+  \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \textbf{Sheetal Kusal} \\
+    \textit{\small Symbiosis Institute of Technology} \\
+    \textit{\small Symbiosis International (Deemed University)} \\
+    {\small Pune, Maharashtra 412115, India} \\
+    {\small ORCID: 0000-0002-9830-6619}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \textbf{Supriya Mahadevkar} \\
+    \textit{\small Pimpri Chinchwad College of Engineering} \\
+    {\small Pune, Maharashtra 411044, India} \\
+    {\small ORCID: 0000-0003-3845-2240}
+  \end{minipage}
+}
+
+\maketitle
+
+% ---------------------------------------------------------------
+\begin{abstract}
+Legal and civic documents are notoriously difficult for non-expert readers to comprehend due to specialized terminology and dense clause structures. While large language models (LLMs) can assist, their tendency to fabricate information makes them unreliable for high-stakes legal interpretation without robust grounding mechanisms. This paper presents a systematic engineering study to develop CivicSense AI, an Explainable Retrieval-Augmented Generation (RAG) system designed specifically for civic document understanding on consumer-grade hardware. The pipeline extracts text, applies semantic chunking, generates dense embeddings via all-MiniLM-L6-v2, and retrieves passages using cosine similarity. A qwen2.5-3b-instruct model then generates structured explanations firmly grounded in the retrieved evidence, protected by strict instruction-integrity constraints to defend against document-embedded prompt injections. The deployment architecture was rigorously refined through targeted ablation studies evaluating embedding models, chunk size configurations, and lightweight LLM reasoning behaviors. At scale across 500 queries from the LegalBench-RAG benchmark, the optimized configuration achieved a 1.0\% error rate, a BERTScore F1 of 0.8460, and 100\% Recall@5 in a single-document retrieval setting. Furthermore, security evaluation against the TeleAI-Safety benchmark yielded a 0.0\% Attack Success Rate. Ultimately, this empirical study demonstrates that a carefully engineered RAG pipeline can provide highly reliable, explainable, and secure legal document comprehension on standard consumer hardware, advancing equitable access to civic information.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Retrieval-Augmented Generation (RAG), Generative AI, Large Language Models (LLM), Explainable AI (XAI), Semantic Search, Natural Language Processing (NLP), Legal Document Analysis, Information Retrieval, Adversarial Robustness, Civic Technology.
+\end{IEEEkeywords}
+
+% ---------------------------------------------------------------
+\section{Introduction}
+
+Advances in large language models (LLMs) have opened new possibilities across virtually every domain~\cite{b1,b2}. However, standard LLMs lack domain-specific grounding and are constrained by fixed context windows, frequently leading to fabricated content when processing long or complex inputs~\cite{b3,b4,b5,b6}. In fields such as law and public administration, these factual errors carry severe consequences. Furthermore, legal documents use language deliberately constructed for practitioners, creating a civic information gap where ordinary readers may unknowingly accept obligations or overlook protections embedded in documents they cannot fully interpret~\cite{b3,b10}. General-purpose LLMs without rigorous grounding gloss over these vital nuances. This motivates the systematic engineering study presented in this paper.
+
+\subsection{Novelty and Contribution}
+
+While RAG systems are widely deployed in enterprise environments, their use as interactive tools for civic accessibility on commodity hardware remains comparatively underexplored. CivicSense AI targets this gap by serving as a secure, offline ``document companion.'' Beyond simply answering queries, the system introduces a proof-tracking mechanism to cite specific document passages, making its reasoning inspectable. It also enforces strict instruction-integrity constraints to actively defend against document-based prompt injection attacks~\cite{b1,b5,b17}.
+
+The primary contribution of this work is the comprehensive empirical study that led to the final deployment architecture. Specifically, we provide:
+\begin{itemize}
+  \item A systematic evaluation of embedding models, chunk-size optimization, and lightweight LLM reasoning behaviors to define an optimal RAG configuration for consumer-grade hardware (e.g., 8\,GB RAM, 4\,GB VRAM).
+  \item An end-to-end Explainable RAG pipeline ensuring verifiable legal comprehension.
+  \item Large-scale evaluation across the LegalBench-RAG suite measuring retrieval accuracy, semantic generation quality, and adversarial security under sustained load.
+\end{itemize}
+
+Section~II surveys related work. Section~III details the system methodology. Section~IV presents the experimental results and engineering discussions. Section~V outlines threats to validity, limitations, and future work.
+
+% ---------------------------------------------------------------
+\section{Related Work}
+
+\subsection{Foundations of Retrieval-Augmented Generation}
+Existing RAG architectures combine external knowledge retrieval with generative modeling to mitigate context limits and factual inaccuracies~\cite{b1,b2,b6}. However, early RAG frameworks primarily optimized for open-domain question answering on large-scale clusters. This optimization assumes abundant computational resources, leaving a significant research gap for high-performance retrieval on resource-constrained consumer hardware. CivicSense addresses this by systematically identifying an optimal balance of lightweight embeddings and highly quantized language models suitable for deployment on standard laptops.
+
+\subsection{RAG in the Legal Domain}
+Recent adaptations of RAG have increasingly targeted the legal domain. Systems like HyPA-RAG~\cite{b3} and LegalRAG~\cite{b10} implemented advanced parameter-adaptive and multilingual retrieval strategies, while others explored hybrid dense-sparse indexing~\cite{b9}. Despite these improvements in retrieval accuracy, existing legal RAG systems are typically deployed via cloud APIs or rely on opaque generative processes that do not explicitly link generated text to source evidence. This lack of verifiable explainability presents a barrier to civic trust. In contrast, CivicSense integrates a mandatory explainability layer that surfaces verifiable metadata and exact textual citations alongside every generated response.
+
+\subsection{Security and Robustness}
+Optimization efforts have also addressed contextual precision through reinforcement learning~\cite{b17} and adaptive retrieval~\cite{b22,b23}. Nevertheless, these studies rarely examine adversarial vulnerabilities inherent to RAG, such as prompt injection via malicious document uploads. The assumption that uploaded documents are benign is a critical vulnerability. CivicSense AI actively mitigates this threat by embedding strict instruction-integrity constraints, experimentally validated against the TeleAI-Safety benchmark~\cite{b24}.
+
+\begin{table*}[!t]
+\centering
+\caption{Comparison of CivicSense AI with Representative Legal RAG Frameworks.}
+\label{tab:related_work}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Method} & \textbf{Explainability} & \textbf{Reasoning Study} & \textbf{Commodity Hardware} & \textbf{Security Evaluation} & \textbf{Prompt Injection Defense} \\
+\midrule
+HyPA-RAG~\cite{b3}       & Partial & No  & No  & No  & No \\
+LegalRAG~\cite{b10}      & No      & No  & No  & No  & No \\
+Kiran Hybrid-RAG~\cite{b9} & No      & No  & Partial & No & No \\
+\textbf{CivicSense AI (Ours)} & \textbf{Yes (Cited)} & \textbf{Yes (Ablated)} & \textbf{Yes (8 GB RAM)} & \textbf{Yes (TeleAI-Safety)} & \textbf{Yes (Integrity Lock)} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+% ---------------------------------------------------------------
+\section{Proposed Methodology}
+
+CivicSense AI is built around a Retrieval-Augmented Generation architecture tailored for local, privacy-preserving interaction with uploaded documents. The pipeline comprises document ingestion, text normalization and chunking, semantic embedding and indexing, query retrieval, and grounded generation, with an explicit explainability layer wrapping the entire process. The overall system architecture is illustrated in Fig.~\ref{fig:architecture}.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{aucml_final.drawio.png}
+\caption{Architecture of the CivicSense AI RAG pipeline. Documents are ingested and normalized, split into overlapping semantic chunks, encoded into 384-dimensional vectors by the all-MiniLM-L6-v2 model, and stored in an in-memory index. At query time, cosine similarity identifies the top-5 relevant chunks, which are passed to the qwen2.5-3b-instruct model along with a system prompt enforcing instruction integrity and JSON output. The response---answer plus explanation---is returned together with the source passage metadata.}
+\label{fig:architecture}
+\end{figure*}
+
+\subsection{Document Ingestion and Parsing}
+
+Documents are uploaded through a Flask backend that accepts PDF, DOCX, and TXT formats. PDF pages are extracted using PyMuPDF at the page level. DOCX files are processed paragraph by paragraph via python-docx, and plain-text files are segmented on paragraph separators. Every extracted segment carries metadata recording its file path and positional origin (page number for PDFs, paragraph index for DOCX/TXT) to support traceable evidence citation later in the pipeline.
+
+\subsection{Text Normalization and Chunking}
+
+Having established the document ingestion protocol, the next critical design decision concerns text normalization and chunking. Extracted text is subjected to minimal normalization: excess whitespace is collapsed and empty segments are discarded. No stemming, stop-word removal, or aggressive cleaning is applied, since legal language is semantically dense and even seemingly redundant words can carry interpretive weight.
+
+The cleaned text is then split into overlapping sequential chunks. Based on the ablation study described in Section~\ref{sec:chunking_ablation}, a configuration of 350 words per chunk with a 50-word overlap was selected as the operating point. Chunk boundaries are estimated using whitespace tokenization rather than a learned tokenizer, which keeps the operation lightweight and deterministic. Each chunk retains the metadata of the source segment, enabling downstream citation.
+
+\subsection{Embedding Model Selection and Indexing}
+
+With the chunking strategy defined, the subsequent step requires selecting an appropriate embedding model to encode these chunks. Each chunk is encoded into a dense semantic vector using the sentence-transformers all-MiniLM-L6-v2 model running entirely on the CPU, producing 384-dimensional embeddings. The empirical justification for selecting this model over larger alternatives is documented in the comparative study in Section~\ref{sec:embedding_ablation}.
+
+Embeddings are stored in an in-memory index comprising a NumPy matrix of embedding vectors and a dictionary mapping indices to chunk text and metadata. The index is session-scoped: it is rebuilt whenever a new document is loaded, ensuring that no residual information from a previous session can influence responses.
+
+\subsection{Query Encoding and Retrieval}
+
+Following indexing, the system must accurately match user queries to the stored embeddings. At inference time, the user's natural-language query is encoded by the same MiniLM encoder used during indexing, guaranteeing consistency in the embedding space. Retrieval is based on cosine similarity between the query vector and all chunk vectors in the index, formalized as:
+
+\begin{equation}
+\text{sim}(\mathbf{q}, \mathbf{c}_i) = \frac{\mathbf{q} \cdot \mathbf{c}_i}{\|\mathbf{q}\| \, \|\mathbf{c}_i\|}
+\label{eq:cosine}
+\end{equation}
+
+where $\mathbf{q}$ is the query embedding and $\mathbf{c}_i$ is the embedding of the $i$-th chunk. The top $K = 5$ chunks ranked by this score are passed to the generation stage.
+
+\subsection{Grounded Answer Generation}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{rag_pipeline_placeholder.png}
+\caption{The retrieval-augmented generation pipeline highlighting semantic grounding and structured output generation.}
+\label{fig:rag_pipeline}
+\end{figure}
+
+The five retrieved chunks are assembled into a structured prompt together with the user's query (see Fig.~\ref{fig:rag_pipeline}). The prompt enforces two hard constraints:
+
+\begin{itemize}
+  \item \textbf{Instruction integrity:} The model is instructed at the system level that only the system prompt's directives govern its behavior. Any text inside the retrieved chunks that resembles an instruction or jailbreak attempt must be treated as passive document content, not a command. This design explicitly guards against document-based prompt injection, where a malicious actor embeds instructions inside an uploaded file to redirect the model's behavior.
+  \item \textbf{Structured output:} Responses must be valid JSON containing two fields: \texttt{answer} (a plain-English explanation of the relevant content) and \texttt{explanation} (the specific reasoning or evidence trail linking the answer to the retrieved passages). When the retrieved context does not contain information relevant to the query, the model is directed to generate a structured abstention response rather than speculate.
+\end{itemize}
+
+The selected generative model is qwen2.5-3b-instruct (Q4\_K\_M quantization), operating with an 8192-token context window, Temperature 0.1, and Top-K = 5. It runs in an unrestricted-reasoning configuration and is deployed locally via LM Studio, which provides an OpenAI-compatible API for inference. If the model outputs malformed JSON---such as trailing commas, stray markdown fences, or truncated fields---a backend repair pipeline based on json\_repair intercepts and corrects the structure before the response is surfaced.
+
+\subsection{Explainability Layer}
+
+Along with each generated response, the system returns the metadata of the retrieved source chunks: file name, page or paragraph number, and a truncated text preview. Users can therefore see exactly which passage of the original document the system drew on, and can locate it manually if they wish to read the full context. This design choice reflects the XAI principle that a civic tool should never ask a non-expert user to simply trust a machine's interpretation of a legal document.
+
+\subsection{Implementation Environment}
+
+The system is implemented in Python with Flask serving as the backend orchestrator. To validate the framework's accessibility, all experiments were conducted on a commodity laptop equipped with an AMD Ryzen 5 5600H CPU, 8\,GB of RAM, and an NVIDIA GTX 1650 Laptop GPU (4\,GB VRAM). The LLM inference was executed via LM Studio utilizing the GPU, while semantic embedding and retrieval operations were handled exclusively on the CPU. Automated evaluation is supported through dedicated endpoints that load benchmark datasets and reset the document index deterministically.
+
+% ---------------------------------------------------------------
+\section{Results and Discussion}
+
+\subsection{Evaluation Setup}
+\label{sec:eval_setup}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{evaluation_workflow_placeholder.png}
+\caption{Evaluation workflow showing the systematic sequence of engineering studies leading to the final deployment configuration.}
+\label{fig:eval_workflow}
+\end{figure}
+
+The evaluation is organized around the LegalBench-RAG benchmark~\cite{b4}, which supplies four datasets drawn from authentic, real-world legal instruments---not synthetic test cases (see Fig.~\ref{fig:eval_workflow}):
+
+\begin{itemize}
+  \item \textbf{CUAD (Contract Understanding Atticus Dataset):} Actual corporate agreements, testing identification and interpretation of key contractual clauses.
+  \item \textbf{Privacy-QA:} Real privacy policies from global organizations, evaluating understanding of regulatory compliance language.
+  \item \textbf{ContractNLI:} Real non-disclosure agreements, testing entailment, contradiction, and neutrality classification.
+  \item \textbf{MAUD (Multi-Agreement Understanding Dataset):} A diverse collection of real legal contracts testing broad comprehension skills.
+\end{itemize}
+
+It is important to note that ContractNLI and CUAD are evaluated in a single-document retrieval setting: each query's search space is confined to one legal document rather than a large multi-document corpus. This naturally yields higher Recall@5 and MRR values than open-domain multi-document retrieval would, and readers should interpret those figures accordingly. The benchmark protocol itself defines this single-document scope; we follow it faithfully but flag it here for transparency.
+
+The full-scale evaluation covers 500 queries (125 per dataset). The generation model in all reported results is qwen2.5-3b-instruct in the unrestricted-reasoning configuration. Embeddings are produced by all-MiniLM-L6-v2 locally on CPU. Retrieval uses cosine similarity (Eq.~\ref{eq:cosine}) with $K = 5$.
+
+\subsection{Embedding Model Selection}
+\label{sec:embedding_ablation}
+
+Prior to the main evaluation, four sentence-transformer models were benchmarked on a representative retrieval task to select the best fit for local CPU deployment. The results are summarized in Table~\ref{tab:embedding_comparison}.
+
+\begin{table}[!t]
+\centering
+\caption{Embedding Model Comparison for Local CPU Deployment. \textbf{Bold} indicates the model selected for the deployed system. Load time is the one-time model initialization cost; query and embed times are per-inference averages.}
+\label{tab:embedding_comparison}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model} & \textbf{Dim.} & \textbf{Top-1 Sim.} & \textbf{Query (ms)} & \textbf{Embed (ms)} & \textbf{Load (s)} \\
+\midrule
+\textbf{all-MiniLM-L6-v2 (chosen)} & \textbf{384} & 0.6456 & \textbf{3.80} & \textbf{10.97} & \textbf{0.08} \\
+all-mpnet-base-v2 & 768 & \textbf{0.6918} & 17.98 & 137.79 & 49.53 \\
+paraphrase-MiniLM-L6-v2 & 384 & 0.6502 & 3.71 & 4.95 & 24.10 \\
+all-distilroberta-v1 & 768 & 0.5829 & 15.13 & 96.92 & 60.47 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+Load times highlight the practical cost of each choice: all-MiniLM-L6-v2 initializes in 0.08\,s, while paraphrase-MiniLM-L6-v2 takes 24.10\,s, mpnet-base-v2 takes 49.53\,s, and all-distilroberta-v1 takes 60.47\,s---a difference that is immediately noticeable in an interactive application. While mpnet-base-v2 scores marginally higher on similarity (0.6918 versus 0.6456), all-MiniLM-L6-v2 is roughly 14$\times$ faster to encode, loads over 600$\times$ faster, and occupies half the memory. For a system designed to run locally on consumer hardware without a GPU, these advantages decisively outweigh the small similarity gap. All reported results use all-MiniLM-L6-v2.
+
+\subsection{Chunk-Size Ablation}
+\label{sec:chunking_ablation}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{chunk_strategy_placeholder.png}
+\caption{The semantic chunking strategy employing a 350-word window with a 50-word overlap to preserve legal clauses.}
+\label{fig:chunk_strategy}
+\end{figure}
+
+Three representative chunking configurations (illustrated in Fig.~\ref{fig:chunk_strategy}) were evaluated on a 200-query subset (50 queries per dataset) to validate the choice of chunk size and overlap. As shown in Table~\ref{tab:chunk_ablation}, all configurations reached 100\% Recall@5 and MRR = 1.0 on this subset, confirming that the benchmark retrieval task is robust to moderate chunk-size variation in the single-document setting.
+
+\begin{table}[!t]
+\centering
+\caption{Chunk-Size Ablation Study (200-Query Subset). All configurations achieve 100\% Recall@5 and MRR = 1.0; qualitative observations distinguish the configurations.}
+\label{tab:chunk_ablation}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lccl}
+\toprule
+\textbf{Config (words)} & \textbf{Recall@5} & \textbf{MRR} & \textbf{Observation} \\
+\midrule
+150 / 20 overlap  & 100\% & 1.000 & Fragments long legal clauses \\
+\textbf{350 / 50 overlap} & \textbf{100\%} & \textbf{1.000} & \textbf{Best balance (chosen)} \\
+500 / 100 overlap & 100\% & 1.000 & Dilutes context; confuses LLM \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 150/20 configuration fragmented complex multi-sentence legal clauses across chunk boundaries, causing the generative model to receive incomplete contract language and produce less coherent answers. The 500/100 configuration preserved full clause context but introduced so much surrounding text into each chunk that the retrieved segments regularly contained irrelevant paragraphs, which increased confusion in the generation stage. The 350/50 configuration struck the right balance between clause completeness and semantic density, and was used in all subsequent experiments.
+
+\subsection{Phase 1: Baseline Comparison of Lightweight Language Models}
+\label{sec:phase1}
+
+To identify a suitable language model for local deployment, we evaluated five open-weight models under identical retrieval conditions using unrestricted reasoning prompts. The objective was to establish baseline generation quality, formatting robustness, and latency.
+
+\begin{table}[!t]
+\centering
+\caption{Phase 1: Baseline Model Comparison (Unrestricted Reasoning)}
+\label{tab:phase1}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Model} & \textbf{Err (\%)} & \textbf{BERTScore} & \textbf{BLEU} & \textbf{chrF} & \textbf{Tok F1 (\%)} & \textbf{Lat (s)} \\
+\midrule
+\textbf{qwen2.5-3b-inst.} & \textbf{0.0} & \textbf{0.8807} & \textbf{19.28} & \textbf{35.03} & \textbf{42.25} & 21.3 \\
+gemma-3-4b & 0.0 & 0.8734 & 16.39 & 30.45 & 38.43 & 23.3 \\
+ministral-3-3b & 0.0 & 0.8453 & 3.80 & 22.07 & 21.63 & 25.1 \\
+nemotron-3-nano-4b & 33.3 & 0.8229 & 0.04 & 8.68 & 13.13 & 22.5 \\
+llama-3.2-3b-inst. & 95.8 & 0.7718 & 0.00 & 0.22 & 0.00 & 30.5 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsubsection*{Observation}
+\texttt{qwen2.5-3b-instruct} dominated all metrics, extracting near-verbatim quotes (BLEU 19.28) and achieving the highest BERTScore F1 (0.8807). Conversely, \texttt{llama-3.2-3b-inst.} exhibited a severe 95.8\% error rate.
+
+\subsubsection*{Analysis}
+The high error rate for Llama was caused by context exhaustion. The model utilized nearly its entire 8192-token budget generating verbose internal reasoning traces, leaving insufficient tokens to format and output the required JSON response. Qwen, however, used its reasoning tokens efficiently to structure accurate extractions before generating the final JSON.
+
+\subsubsection*{Engineering Implication}
+When deploying lightweight models with strict formatting constraints, unrestricted internal reasoning can paradoxically degrade reliability. Models must be evaluated not just on semantic capability, but on their structural discipline within finite context windows.
+
+\subsection{Phase 2: Reasoning Ablation Study}
+\label{sec:phase2}
+
+Recent lightweight LLMs are instruction-tuned to generate internal reasoning traces before answering. In a RAG context where evidence is already retrieved, unrestricted reasoning may unnecessarily consume context and induce hallucinations. We conducted an ablation study by explicitly forbidding reasoning blocks via the system prompt.
+
+\begin{table}[!t]
+\centering
+\caption{Phase 2: Reasoning Ablation (Restricted Reasoning)}
+\label{tab:phase2}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Model} & \textbf{Err (\%)} & \textbf{BERTScore} & \textbf{BLEU} & \textbf{chrF} & \textbf{Tok F1 (\%)} & \textbf{Lat (s)} \\
+\midrule
+\textbf{gemma-3-4b} & \textbf{0.0} & \textbf{0.8798} & \textbf{19.94} & \textbf{34.04} & \textbf{40.05} & 23.0 \\
+ministral-3-3b & 0.0 & 0.8646 & 5.37 & 24.57 & 29.38 & 21.9 \\
+qwen2.5-3b-inst. & 0.0 & 0.8519 & 8.12 & 25.65 & 28.40 & 18.3 \\
+llama-3.2-3b-inst. & 0.0 & 0.8327 & 3.95 & 21.54 & 18.30 & 18.9 \\
+nemotron-3-nano-4b & 50.0 & 0.8006 & 0.01 & 4.41 & 4.75 & 15.0 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsubsection*{Observation}
+Under restricted reasoning, Llama's error rate plummeted from 95.8\% to 0.0\%, becoming fully functional. Conversely, qwen2.5-3b-instruct suffered a substantial quality drop across all metrics (e.g., BLEU fell from 19.28 to 8.12). Gemma-3-4b proved to be the most consistent model, slightly improving under restriction.
+
+\subsubsection*{Analysis}
+Llama's default reasoning loop actively harmed its structured output generation by wasting tokens; suppressing it restored functional generation. For Qwen, the reasoning phase was structurally integral for organizing the extracted evidence before building the final explanation. Without it, Qwen's generation quality collapsed.
+
+\subsubsection*{Engineering Implication}
+Prompt engineering for lightweight RAG systems is highly model-dependent. A constraint that fixes one model (Llama) can break another (Qwen). The decision to allow or restrict reasoning must be empirically validated per model prior to deployment.
+
+\subsection{Faithfulness and Hallucination Analysis}
+\label{sec:hallucination}
+
+Since RAG systems aim to mitigate factual drift, we assessed semantic grounding via an LLM-as-a-Judge framework. The judge compared the model answer to verbatim legal extracts (gold answers) to score faithfulness and hallucination.
+
+\begin{table}[!t]
+\centering
+\caption{Hallucination Check via LLM-as-a-Judge. P1 = Unrestricted, P2 = Restricted.}
+\label{tab:hallucination}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{Phase} & \textbf{Faithful (\%)} & \textbf{Avg Halluc.} & \textbf{BLEU} \\
+\midrule
+qwen2.5-3b-inst. & P1 & \textbf{29.2} & \textbf{0.669} & 19.28 \\
+gemma-3-4b & P2 & 25.0 & 0.744 & 19.94 \\
+qwen2.5-3b-inst. & P2 & 16.7 & 0.775 & 8.12 \\
+nemotron-3-nano & P1 & 6.2 & 0.909 & 0.04 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection*{Observation}
+Qwen (Phase 1, unrestricted) yielded the highest faithfulness score (29.2\%) and the lowest hallucination rate (0.669). When its reasoning was restricted (Phase 2), its faithfulness plummeted to 16.7\%.
+
+\subsubsection*{Analysis}
+The internal reasoning trace provides a "scratchpad" for the model to synthesize retrieved evidence before drafting the final response. Without this scratchpad, the model relies more heavily on its internal priors, increasing the likelihood of hallucination.
+
+\subsubsection*{Engineering Implication}
+For legal document comprehension, faithfulness to the source text is non-negotiable. Because Qwen2.5-3b-instruct (unrestricted) demonstrated the best balance of low hallucination, high semantic similarity, and robust JSON generation, it was designated as the primary deployment candidate for the large-scale evaluation, finalizing the model selection funnel (Fig.~\ref{fig:model_funnel}).
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{model_selection_funnel_placeholder.png}
+\caption{Model selection funnel leading from the 5 candidate models to the final Qwen2.5-3B deployment.}
+\label{fig:model_funnel}
+\end{figure}
+
+\subsection{Phase 3: Large-Scale Retrieval Performance}
+\label{sec:retrieval_results}
+
+\subsubsection*{Observation}
+Across all 500 queries, the system achieved 100\% Recall@5 and an MRR of 1.0, paired with an average BERTScore F1 of 0.8460.
+
+\subsubsection*{Analysis}
+The perfect retrieval metrics are a direct consequence of the single-document bounds of the benchmark tasks (CUAD, ContractNLI, etc.), where the search space is constrained to an individual uploaded file. The high BERTScore confirms that the retrieved passages contained the correct semantic information needed to answer the query.
+
+\subsubsection*{Engineering Implication}
+In a civic context where users upload a single document for analysis, a lightweight CPU-based embedding model (all-MiniLM-L6-v2) is more than sufficient for perfect retrieval. Investing in larger, slower embedding models is unnecessary and inefficient for single-document RAG workloads.
+
+\begin{table}[!t]
+\centering
+\caption{Retrieval and Semantic Similarity Performance (500 Queries, qwen2.5-3b-instruct, unrestricted-reasoning). Recall@5 and MRR are high because each query is evaluated against a single-document corpus, as defined by the LegalBench-RAG benchmark protocol (see Section~\ref{sec:eval_setup}).}
+\label{tab:retrieval_results}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Dataset} & \textbf{Recall@5} & \textbf{MRR} & \textbf{BERTScore F1} \\
+\midrule
+CUAD        & 100.00\% & 1.000 & \multirow{4}{*}{0.8460 (avg)} \\
+Privacy-QA  & 100.00\% & 1.000 & \\
+ContractNLI & 100.00\% & 1.000 & \\
+MAUD        & 100.00\% & 1.000 & \\
+\midrule
+\textbf{Overall} & \textbf{100.00\%} & \textbf{1.000} & \textbf{0.8460} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Generation Quality and System Performance}
+\label{sec:generation_results}
+
+\subsubsection*{Observation}
+The system maintained a low error rate of 1.0\% (only 5 out of 500 queries failed formatting recovery). However, exact lexical match scores were modest (Corpus BLEU 14.02, Token F1 29.0\%). Average latency was 18.4 seconds per query on CPU/Laptop GPU.
+
+\subsubsection*{Analysis}
+The 1.0\% error rate proves the json\_repair pipeline successfully handled the vast majority of edge-case generation errors. The low lexical scores occur because the system is intentionally prompted to paraphrase dense legal text into accessible plain English, which penalizes n-gram overlap against verbatim gold standards.
+
+\subsubsection*{Engineering Implication}
+Standard NLP metrics like BLEU are poor indicators of success for systems designed to simplify language. The low error rate and 18.4s latency demonstrate that a 3B parameter model, accelerated by a 4GB VRAM GPU, provides a highly stable, completely offline solution for civic document review.
+
+\begin{table}[!t]
+\centering
+\caption{Generation Quality and Latency (500 Queries, qwen2.5-3b-instruct, unrestricted-reasoning, local CPU). Corpus-level BLEU and chrF are computed over the full valid response set. Token F1 is the macro-average over individual query pairs.}
+\label{tab:generation_results}
+\renewcommand{\arraystretch}{1.2}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Metric} & \textbf{CUAD} & \textbf{Privacy-QA} & \textbf{ContractNLI} & \textbf{MAUD} & \textbf{Overall} \\
+\midrule
+Corpus BLEU  & \multicolumn{4}{c}{---} & 14.02 \\
+Corpus chrF  & \multicolumn{4}{c}{---} & 31.54 \\
+Token F1     & \multicolumn{4}{c}{---} & 29.0\% \\
+Error Rate   & \multicolumn{4}{c}{---} & 1.0\% \\
+Avg Latency (s) & \multicolumn{4}{c}{---} & 18.4 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Understanding the Lexical--Semantic Score Gap}
+\label{sec:score_gap}
+
+The contrast between the relatively modest lexical scores (corpus BLEU of 14.02, Token F1 of 29.0\%) and the strong semantic similarity (BERTScore F1 of 0.8460) reflects a deliberate design choice rather than a retrieval or generation failure. The gold-standard answers in LegalBench-RAG are verbatim excerpts from the source legal documents---dense, clause-heavy prose written for legal practitioners. CivicSense AI is explicitly prompted to translate this language into plain English accessible to non-expert readers. Any such paraphrase, even a semantically perfect one, will score poorly on n-gram overlap metrics that require surface-level word matching.
+
+BERTScore F1 captures semantic equivalence rather than surface form, which is why it stays high even when BLEU and chrF are moderate. This same dynamic explains why absolute faithfulness percentages (where the judge compares model answers to verbatim legal text) understate the true reliability of the system: a model that correctly explains what a clause means in plain English will be flagged as ``unfaithful'' if its wording diverges from the exact original phrasing. The relative ordering of models on these metrics---not the absolute values---is the meaningful signal.
+
+\subsection{Scalability and Resource Usage}
+\label{sec:scalability}
+
+To assess stability under sustained load, the pipeline was run against all 500 benchmark queries in sequence on the same consumer-grade hardware (AMD Ryzen 5 5600H, 8\,GB RAM, GTX 1650 4\,GB VRAM). The system maintained a 1.0\% error rate throughout---only 5 queries out of 500 produced output that could not be recovered by the JSON repair fallback. Average latency was approximately 18.4 seconds per query. The system is designed for thoughtful, asynchronous document review rather than real-time interactive chat, and this latency is entirely appropriate for a privacy-first, fully local deployment.
+
+\subsection{Security and Adversarial Robustness}
+\label{sec:security}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{security_workflow_placeholder.png}
+\caption{Instruction Integrity workflow demonstrating how adversarial prompts embedded in retrieved documents are isolated from execution.}
+\label{fig:security_workflow}
+\end{figure}
+
+An important vulnerability in document-grounded RAG systems is prompt injection via the retrieved content itself (see Fig.~\ref{fig:security_workflow}): an adversarially crafted document can embed instructions that override the model's system prompt and redirect its behavior. To quantify this risk, we evaluated the system against 50 adversarial jailbreak prompts spanning 12 distinct risk categories drawn from the TeleAI-Safety benchmark~\cite{b24}. The Attack Success Rate (ASR) is defined as the proportion of adversarial prompts for which the model complied with the harmful instruction rather than deflecting it.
+
+\subsubsection*{Observation}
+CivicSense AI successfully blocked all 50 adversarial prompts, yielding a 0.0\% Attack Success Rate across 12 distinct risk categories from the TeleAI-Safety benchmark.
+
+\subsubsection*{Analysis}
+The strict instruction-integrity constraint enforced at the system-prompt level proved entirely effective against indirect prompt injection. By explicitly instructing the model to treat all retrieved text as passive data, the model ignored the embedded jailbreak commands.
+
+\subsubsection*{Engineering Implication}
+Security cannot be an afterthought in RAG systems. Implementing hard boundaries between system instructions and retrieved context is a zero-cost engineering intervention that completely nullifies a critical vector for document-based attacks, making it a mandatory component for civic AI tools.
+
+\begin{table}[!t]
+\centering
+\caption{Adversarial Security Evaluation (TeleAI-Safety Benchmark, 50 Prompts across 12 Risk Categories).}
+\label{tab:security}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model / Config} & \textbf{Prompts Tested} & \textbf{Attack Success Rate} \\
+\midrule
+qwen2.5-3b-instruct (unrestricted) & 50 & \textbf{0.0\%} (0/50) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 0.0\% ASR is attributed to the instruction-integrity constraints embedded in the system prompt, which give system-level directives explicit precedence over any text found in retrieved document passages. This prevents a malicious actor from embedding instructions inside an uploaded document and exploiting the RAG system as a conduit for harmful output. Robustness to ambiguous, contradictory, or organically noisy document inputs (as distinct from deliberate adversarial attacks) has not yet been evaluated in a controlled setting and is identified as a future work direction.
+
+\subsection{Discussion}
+\label{sec:discussion}
+
+The results of this study offer several critical engineering lessons for deploying RAG systems on consumer-grade hardware. First, we learned that prioritizing formatting discipline over raw semantic capability is essential for structured generation. Models that excel on general conversational benchmarks (e.g., Llama 3.2) can fail catastrophically when their internal reasoning protocols conflict with strict JSON schema requirements within a finite context window. Qwen2.5-3b-instruct proved superior not because it possesses vastly superior legal knowledge, but because its reasoning phase acts as a highly efficient structural ``scratchpad,'' allowing it to organize extracted evidence before finalizing the output.
+
+Second, our findings regarding chunk size highlight a divergence from standard open-domain RAG practices. While traditional systems often employ small, 150-word chunks to maximize retrieval precision~\cite{b1,b2}, legal documents demand larger contexts (e.g., 350 words) to preserve complex, multi-sentence clauses. The generative model's comprehension is highly sensitive to semantic completeness; fragmenting legal clauses guarantees degradation in explainability, even if retrieval metrics remain high.
+
+Compared to existing literature such as HyPA-RAG~\cite{b3} and LegalRAG~\cite{b10}, CivicSense deliberately trades raw inference speed to guarantee verifiability and offline security. Enterprise systems utilizing cloud-hosted APIs resolve queries in milliseconds but inherently transmit sensitive civic data externally. By executing embeddings on the CPU and offloading LLM inference to a modest 4\,GB Laptop GPU, CivicSense achieves an 18.4-second latency. While slower than cloud counterparts, this latency is fully acceptable for asynchronous, privacy-first civic document review. Furthermore, the 0.0\% Attack Success Rate achieved via strict instruction-integrity prompting demonstrates that defense against document-embedded prompt injections can be solved via architectural constraints without incurring computational overhead, a vulnerability rarely addressed in prior civic RAG studies.
+
+\subsection{SDG Alignment}
+
+CivicSense AI directly supports United Nations Sustainable Development Goal 16---Peace, Justice, and Strong Institutions---by reducing the technical and linguistic barriers that prevent non-expert citizens from understanding the legal and civic documents that govern their daily lives. By running entirely on local hardware, the system is also deployable in low-connectivity or resource-constrained environments, which extends its reach to communities that would benefit most from improved civic information access.
+
+\section{Threats to Validity and Limitations}
+\label{sec:threats_limitations}
+
+While the experimental results validate the efficacy of CivicSense AI, several limitations and threats to validity must be acknowledged to contextualize these findings and guide future research.
+
+\subsection{Threats to Validity}
+\textbf{Internal and Construct Validity:} The experiments minimized confounding variables by modifying only one pipeline component per phase. However, interactions between components (e.g., embedding models with varying chunk sizes) were not exhaustively explored. Additionally, while standard metrics like BLEU and Token F1 reward lexical overlap, our system is explicitly prompted to generate simplified explanations. Consequently, lexical metrics may underestimate the practical quality of the explanations. We mitigated this by incorporating BERTScore and LLM-as-a-Judge semantic faithfulness evaluations.
+
+\textbf{External and Hardware Validity:} Evaluation relied on four LegalBench-RAG datasets representing diverse but non-exhaustive legal tasks. Performance on highly specialized domains (e.g., intellectual property, tax law) requires further validation. Furthermore, all reported latency and scalability metrics correspond to a specific commodity hardware configuration (AMD Ryzen 5600H, no GPU). While retrieval quality remains independent of hardware, inference latency will vary across devices.
+
+\subsection{Limitations}
+\textbf{Model Scope and Deployment Constraints:} The study deliberately prioritized lightweight, locally deployable open-weight language models to ensure privacy and low operational cost. Consequently, larger proprietary models were excluded. The architectural choices, including simple cosine similarity and in-memory indexing, serve this local deployment constraint but may not fully exploit the capabilities of larger hardware setups.
+
+\textbf{Retrieval and Prompting Exploration:} The system uses dense semantic retrieval. More sophisticated approaches such as hybrid dense-lexical retrieval, reranking, or knowledge graph augmentation remain unexplored. Similarly, we evaluated only two prompting configurations (unrestricted versus restricted reasoning). Future work should investigate adaptive or chain-of-thought prompting strategies.
+
+\textbf{Evaluation Scope:} Security evaluation against the TeleAI-Safety benchmark demonstrated robust defense against direct prompt injection, but did not assess more complex adversarial vectors such as retrieval poisoning or indirect prompt injection. Additionally, while the automated evaluation is rigorous, it lacks formal human evaluation by legal professionals or usability studies with non-expert users, which are essential to fully validate the tool's civic utility.
+
+% ---------------------------------------------------------------
+\section{Conclusion}
+This engineering study demonstrates the viability of executing Explainable RAG for civic document comprehension entirely on resource-constrained consumer hardware. By systematically tuning chunk size, embedding dimensions, and generative reasoning constraints, CivicSense AI achieved a 1.0\% error rate and a BERTScore F1 of 0.8460 across a 500-query benchmark. Crucially, the system enforces verifiable explainability through exact citation and provides robust defense against document-based prompt injections (0.0\% Attack Success Rate).
+
+\textbf{Future Work.} Future research will focus on two primary trajectories. First, deploying lightweight cross-encoder reranking models could optimize context density, potentially reducing inference latency without requiring cloud offloading. Second, comprehensive human-centered usability studies are required to quantify the system's practical impact on civic literacy and ensure the generated plain-English explanations effectively bridge the civic information gap for non-expert users. Ultimately, this work provides a foundational architecture for building secure, offline AI tools that prioritize user trust and equitable access to legal knowledge.
+
+% ---------------------------------------------------------------
+\begin{thebibliography}{00}
+
+\bibitem{b1} Y. Gao, Y. Xiong, X. Gao, K. Jia, J. Pan, Y. Bi, Y. Dai, J. Sun, M. Wang, and H. Wang, ``Retrieval-Augmented Generation for Large Language Models: A Survey,'' \textit{arXiv preprint arXiv:2312.10997}, Dec. 2023.
+
+\bibitem{b2} M. Cheng, Y. Luo, J. Ouyang, Q. Liu, H. Liu, L. Li, S. Yu, B. Zhang, J. Cao, J. Ma, and D. Wang, ``A Survey on Knowledge-Oriented Retrieval-Augmented Generation,'' \textit{arXiv preprint arXiv:2503.10677}, Mar. 2025.
+
+\bibitem{b3} R. Kalra, Z. Wu, A. Gulley, A. Hilliard, X. Guan, A. Koshiyama, and P. C. Treleaven, ``HyPA-RAG: A Hybrid Parameter Adaptive Retrieval-Augmented Generation System for AI Legal and Policy Applications,'' in \textit{Proc. 1st Workshop on Customizable NLP: Progress and Challenges in Customizing NLP for a Domain, Application, Group, or Individual (CustomNLP4U)}, Miami, FL, USA, Nov. 2024, pp. 237--256.
+
+\bibitem{b4} G. H. Alami et al., ``LegalBench-RAG: A Benchmark for Retrieval-Augmented Generation in the Legal Domain,'' \textit{arXiv preprint arXiv:2408.10343}, Aug. 2024.
+
+\bibitem{b5} B. Ni et al., ``Towards Trustworthy Retrieval Augmented Generation for Large Language Models: A Survey,'' \textit{arXiv preprint arXiv:2502.06872}, Feb. 2025.
+
+\bibitem{b6} S. Gupta, R. Ranjan, and S. N. Singh, ``A Comprehensive Survey of Retrieval-Augmented Generation (RAG): Evolution, Current Landscape and Future Directions,'' \textit{arXiv preprint arXiv:2410.12837}, Oct. 2024.
+
+\bibitem{b7} ``Evaluation of Retrieval-Augmented Generation: A Survey,'' \textit{arXiv preprint arXiv:2405.07437}, May 2024.
+
+\bibitem{b8} W. Fan, Y. Ding, L. Ning, S. Wang, H. Li, D. Yin, T.-S. Chua, and Q. Li, ``A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models,'' in \textit{Proc. 30th ACM SIGKDD Conf. on Knowledge Discovery and Data Mining (KDD '24)}, New York, NY, USA: ACM, 2024, pp. 6491--6501. DOI: 10.1145/3637528.3671470.
+
+\bibitem{b9} S. Kiran, ``Hybrid Retrieval-Augmented Generation (RAG) Systems with Embedding Vector Databases,'' \textit{Int. J. Sci. Res. Comput. Sci. Eng. Inf. Technol.}, vol. 11, no. 2, pp. 2694--2702, Mar.--Apr. 2025. DOI: 10.32628/CSEIT25112702.
+
+\bibitem{b10} M. R. Kabir, R. M. Sultan, F. Rahman, M. R. Amin, S. Momen, and N. Mohammed, ``LegalRAG: A Hybrid RAG System for Multilingual Legal Information Retrieval,'' \textit{arXiv preprint arXiv:2504.16121}, Apr. 2025.
+
+\bibitem{b11} ``Optimizing Legal Text Summarization Through Dynamic Retrieval-Augmented Generation,'' \textit{Symmetry}, vol. 17, no. 5, Art. no. 633, 2025.
+
+\bibitem{b12} ``Accurate AI Assistance in Contract Law Using Retrieval-Augmented Generation,'' \textit{The Scientific World Journal}, vol. 16, no. 2, 2025.
+
+\bibitem{b13} ``Retrieval-Augmented Generation for Educational Application,'' \textit{Elsevier Educ. Artificial Intell.}, 2025.
+
+\bibitem{b14} ``Towards Reliable Retrieval in RAG Systems for Large Legal Datasets,'' \textit{arXiv preprint arXiv:2510.06999}, Oct. 2025.
+
+\bibitem{b15} ``A Hybrid Approach to Information Retrieval and Answer Generation for Regulatory Texts,'' \textit{arXiv preprint arXiv:2502.16767}, Feb. 2025.
+
+\bibitem{b16} ``Bridging Legal Knowledge and AI: Retrieval-Augmented Generation with Vector Stores, Knowledge Graphs, and Hierarchical Non-negative Matrix Factorization,'' \textit{arXiv preprint arXiv:2502.20364}, Feb. 2025.
+
+\bibitem{b17} A. Ammar, T. R. Ahmed, M. Al-Masri, and H. El-Bakry, ``Optimized Reinforcement Learning-Based Retrieval-Augmented Generation Framework for Domain-Specific QA,'' \textit{IEEE Access}, vol. 12, pp. 78521--78534, 2024. DOI: 10.1109/ACCESS.2024.3356429.
+
+\bibitem{b18} S. Jadon, A. Raj, and R. Kumar, ``Quantitative Evaluation of Hybrid RAG Architectures for Biomedical Information Retrieval,'' \textit{Expert Systems with Applications}, vol. 242, no. 2, Art. no. 122591, 2024.
+
+\bibitem{b19} L. Zhang, P. Wu, and D. Zhao, ``Cross-Lingual Summarization via Quantitatively Tuned Retrieval-Augmented Generation,'' \textit{Information Processing \& Management}, vol. 62, no. 4, Art. no. 103416, 2025.
+
+\bibitem{b20} R. Chen, A. Gupta, and M. Wang, ``Evaluation Metrics and Performance Benchmarks in Retrieval-Augmented Generation Models,'' \textit{ACM Trans. Intell. Syst. Technol.}, vol. 16, no. 1, pp. 112--128, Jan. 2025.
+
+\bibitem{b21} N. Alsubaie and F. Karray, ``Performance Assessment of RAG Pipelines in Real-Time Conversational Agents,'' \textit{IEEE Trans. Comput. Social Syst.}, vol. 12, no. 5, pp. 945--958, 2025.
+
+\bibitem{b22} T. Nguyen, S. Zhao, and J. Li, ``Adaptive RAG for Question Answering: Quantitative Benchmarks Across Retrieval Backbones,'' \textit{Knowledge-Based Systems}, vol. 293, no. 1, 111573, 2024.
+
+\bibitem{b23} E. Park, S. Lee, and J. Kang, ``Quantitative Analysis of Parameter-Efficient RAG Models for Legal and Technical Domains,'' \textit{Applied Soft Computing}, vol. 158, Art. no. 111274, 2025.
+
+\bibitem{b24} X. Chen, T. Liu, Y. Yuan, N. Xu, and H. Li, ``TeleAI-Safety: A Comprehensive LLM Jailbreaking Benchmark towards Attacks, Defenses, and Evaluations,'' \textit{arXiv preprint arXiv:2512.05485}, Dec. 2025.
+
+\end{thebibliography}
+
+\end{document}

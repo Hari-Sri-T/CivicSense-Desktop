@@ -1,0 +1,32 @@
+name: Build desktop candidates
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install CPU Torch on Windows and Linux
+        if: runner.os != 'macOS'
+        run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - name: Install native dependencies
+        run: python -m pip install -r requirements-desktop.txt pyinstaller --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
+      - name: Install Linux Qt backend
+        if: runner.os == 'Linux'
+        run: python -m pip install 'pywebview[qt]'
+      - run: python scripts/build_desktop.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CivicSense-${{ runner.os }}-${{ runner.arch }}
+          path: dist/
+          if-no-files-found: error

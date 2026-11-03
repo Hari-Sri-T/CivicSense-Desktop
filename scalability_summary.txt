@@ -1,0 +1,17 @@
+================================================================================
+SCALABILITY & RESOURCE BENCHMARKING SUMMARY
+================================================================================
+
+Docs   | Chunks   | Embed Time(s)  | Index Mem(MB)  | Retrieval(ms) 
+--------------------------------------------------------------------------------
+1      | 7        | 0.15           | 86.06          | 0.32          
+5      | 171      | 3.56           | 270.27         | 0.48          
+10     | 313      | 6.89           | 277.15         | 0.63          
+25     | 676      | 14.53          | 285.46         | 0.97          
+50     | 1357     | 28.43          | 320.75         | 2.99          
+
+--------------------------------------------------------------------------------
+Analysis:
+- Retrieval latency scales logarithmically/linearly with chunk count (NumPy dot product).
+- Memory footprint remains highly efficient due to 384-dim vectors.
+- Embedding time is the primary bottleneck for ingestion.

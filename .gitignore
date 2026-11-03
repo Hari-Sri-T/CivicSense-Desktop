@@ -1,0 +1,45 @@
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+env file
+service-account*.json
+*credentials*.json
+*.pem
+*.key
+.aws/
+.codex/
+.agents/
+# Environments, caches, builds and model weights
+venv/
+.venv/
+.venvs/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.cache/
+build/
+dist/
+*.egg-info/
+*.spec
+all-MiniLM-L6-v2/
+nlpproject/sdg_bert/
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+*.h5
+*.ot
+*.zip
+# User documents and third-party corpus (obtain upstream)
+uploads/
+LegalBench-RAG/
+# OS/editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

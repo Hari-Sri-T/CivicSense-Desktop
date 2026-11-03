@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use CivicSense, cite this repository and consult paper/conference_final.tex for the supplied manuscript."
+type: software
+title: CivicSense Desktop
+version: 0.1.0
+repository-code: https://github.com/Hari-Sri-T/CivicSense-Desktop
+abstract: "A local desktop retrieval-augmented generation application for civic and legal document comprehension."
+authors:
+  - family-names: Tanniru
+    given-names: Hari Sri Shanmukha Sai
+    orcid: https://orcid.org/0009-0001-4348-1559
+  - family-names: Awatramani
+    given-names: Sahil
+    orcid: https://orcid.org/0009-0000-2323-967X
+  - family-names: Sangle
+    given-names: Tanishq
+    orcid: https://orcid.org/0009-0000-0210-2068
+  - family-names: Kusal
+    given-names: Sheetal
+    orcid: https://orcid.org/0000-0002-9830-6619
+  - family-names: Mahadevkar
+    given-names: Supriya
+    orcid: https://orcid.org/0000-0003-3845-2240

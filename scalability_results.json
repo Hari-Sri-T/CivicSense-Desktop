@@ -1,0 +1,42 @@
+[
+  {
+    "doc_count": 1,
+    "chunk_count": 7,
+    "chunking_time_s": 0.00078582763671875,
+    "embed_time_s": 0.15391850471496582,
+    "index_memory_mb": 86.0625,
+    "avg_retrieval_latency_ms": 0.3158092498779297
+  },
+  {
+    "doc_count": 5,
+    "chunk_count": 171,
+    "chunking_time_s": 0.007406473159790039,
+    "embed_time_s": 3.5615556240081787,
+    "index_memory_mb": 270.2734375,
+    "avg_retrieval_latency_ms": 0.48210620880126953
+  },
+  {
+    "doc_count": 10,
+    "chunk_count": 313,
+    "chunking_time_s": 0.011189937591552734,
+    "embed_time_s": 6.892409086227417,
+    "index_memory_mb": 277.15234375,
+    "avg_retrieval_latency_ms": 0.6296157836914062
+  },
+  {
+    "doc_count": 25,
+    "chunk_count": 676,
+    "chunking_time_s": 0.0283050537109375,
+    "embed_time_s": 14.529819011688232,
+    "index_memory_mb": 285.46484375,
+    "avg_retrieval_latency_ms": 0.9690046310424805
+  },
+  {
+    "doc_count": 50,
+    "chunk_count": 1357,
+    "chunking_time_s": 0.0517268180847168,
+    "embed_time_s": 28.42750382423401,
+    "index_memory_mb": 320.75,
+    "avg_retrieval_latency_ms": 2.991914749145508
+  }
+]

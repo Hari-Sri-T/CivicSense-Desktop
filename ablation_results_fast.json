@@ -1,0 +1,342 @@
+[
+  {
+    "chunk_size": 100,
+    "overlap": 0,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0113,
+    "avg_chunks_per_doc": 148.3,
+    "avg_top1_sim": 0.6818
+  },
+  {
+    "chunk_size": 100,
+    "overlap": 25,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0116,
+    "avg_chunks_per_doc": 197.7,
+    "avg_top1_sim": 0.6868
+  },
+  {
+    "chunk_size": 100,
+    "overlap": 50,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0112,
+    "avg_chunks_per_doc": 296.2,
+    "avg_top1_sim": 0.6928
+  },
+  {
+    "chunk_size": 100,
+    "overlap": 75,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.029,
+    "avg_chunks_per_doc": 591.9,
+    "avg_top1_sim": 0.7012
+  },
+  {
+    "chunk_size": 150,
+    "overlap": 0,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0109,
+    "avg_chunks_per_doc": 99.1,
+    "avg_top1_sim": 0.6642
+  },
+  {
+    "chunk_size": 150,
+    "overlap": 25,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0112,
+    "avg_chunks_per_doc": 118.8,
+    "avg_top1_sim": 0.6662
+  },
+  {
+    "chunk_size": 150,
+    "overlap": 50,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0109,
+    "avg_chunks_per_doc": 148.3,
+    "avg_top1_sim": 0.6722
+  },
+  {
+    "chunk_size": 150,
+    "overlap": 75,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.011,
+    "avg_chunks_per_doc": 197.7,
+    "avg_top1_sim": 0.6768
+  },
+  {
+    "chunk_size": 150,
+    "overlap": 100,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0115,
+    "avg_chunks_per_doc": 296.2,
+    "avg_top1_sim": 0.6829
+  },
+  {
+    "chunk_size": 250,
+    "overlap": 0,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0116,
+    "avg_chunks_per_doc": 59.8,
+    "avg_top1_sim": 0.6484
+  },
+  {
+    "chunk_size": 250,
+    "overlap": 25,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0111,
+    "avg_chunks_per_doc": 66.2,
+    "avg_top1_sim": 0.6559
+  },
+  {
+    "chunk_size": 250,
+    "overlap": 50,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0118,
+    "avg_chunks_per_doc": 74.3,
+    "avg_top1_sim": 0.6527
+  },
+  {
+    "chunk_size": 250,
+    "overlap": 75,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0123,
+    "avg_chunks_per_doc": 85.2,
+    "avg_top1_sim": 0.6627
+  },
+  {
+    "chunk_size": 250,
+    "overlap": 100,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0121,
+    "avg_chunks_per_doc": 99.1,
+    "avg_top1_sim": 0.6566
+  },
+  {
+    "chunk_size": 350,
+    "overlap": 0,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0131,
+    "avg_chunks_per_doc": 42.9,
+    "avg_top1_sim": 0.6519
+  },
+  {
+    "chunk_size": 350,
+    "overlap": 25,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0149,
+    "avg_chunks_per_doc": 46.0,
+    "avg_top1_sim": 0.653
+  },
+  {
+    "chunk_size": 350,
+    "overlap": 50,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0125,
+    "avg_chunks_per_doc": 49.7,
+    "avg_top1_sim": 0.6456
+  },
+  {
+    "chunk_size": 350,
+    "overlap": 75,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0117,
+    "avg_chunks_per_doc": 54.2,
+    "avg_top1_sim": 0.6481
+  },
+  {
+    "chunk_size": 350,
+    "overlap": 100,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0115,
+    "avg_chunks_per_doc": 59.8,
+    "avg_top1_sim": 0.6484
+  },
+  {
+    "chunk_size": 500,
+    "overlap": 0,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0113,
+    "avg_chunks_per_doc": 30.2,
+    "avg_top1_sim": 0.6355
+  },
+  {
+    "chunk_size": 500,
+    "overlap": 25,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0113,
+    "avg_chunks_per_doc": 31.7,
+    "avg_top1_sim": 0.6382
+  },
+  {
+    "chunk_size": 500,
+    "overlap": 50,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.012,
+    "avg_chunks_per_doc": 33.4,
+    "avg_top1_sim": 0.6344
+  },
+  {
+    "chunk_size": 500,
+    "overlap": 75,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0126,
+    "avg_chunks_per_doc": 35.3,
+    "avg_top1_sim": 0.6401
+  },
+  {
+    "chunk_size": 500,
+    "overlap": 100,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0112,
+    "avg_chunks_per_doc": 37.6,
+    "avg_top1_sim": 0.6377
+  },
+  {
+    "chunk_size": 750,
+    "overlap": 0,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0114,
+    "avg_chunks_per_doc": 20.3,
+    "avg_top1_sim": 0.6248
+  },
+  {
+    "chunk_size": 750,
+    "overlap": 25,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0113,
+    "avg_chunks_per_doc": 20.9,
+    "avg_top1_sim": 0.6281
+  },
+  {
+    "chunk_size": 750,
+    "overlap": 50,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0118,
+    "avg_chunks_per_doc": 21.6,
+    "avg_top1_sim": 0.6383
+  },
+  {
+    "chunk_size": 750,
+    "overlap": 75,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0117,
+    "avg_chunks_per_doc": 22.3,
+    "avg_top1_sim": 0.6405
+  },
+  {
+    "chunk_size": 750,
+    "overlap": 100,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0117,
+    "avg_chunks_per_doc": 23.3,
+    "avg_top1_sim": 0.6361
+  },
+  {
+    "chunk_size": 1000,
+    "overlap": 0,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0119,
+    "avg_chunks_per_doc": 15.3,
+    "avg_top1_sim": 0.6287
+  },
+  {
+    "chunk_size": 1000,
+    "overlap": 25,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0117,
+    "avg_chunks_per_doc": 15.6,
+    "avg_top1_sim": 0.6306
+  },
+  {
+    "chunk_size": 1000,
+    "overlap": 50,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0113,
+    "avg_chunks_per_doc": 16.1,
+    "avg_top1_sim": 0.63
+  },
+  {
+    "chunk_size": 1000,
+    "overlap": 75,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0122,
+    "avg_chunks_per_doc": 16.4,
+    "avg_top1_sim": 0.6269
+  },
+  {
+    "chunk_size": 1000,
+    "overlap": 100,
+    "total_queries": 200,
+    "recall_at_5": 100.0,
+    "mrr": 1.0,
+    "avg_latency_sec": 0.0126,
+    "avg_chunks_per_doc": 16.9,
+    "avg_top1_sim": 0.6276
+  }
+]

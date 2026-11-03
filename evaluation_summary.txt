@@ -1,0 +1,69 @@
+--- LegalBench Targeted Evaluation Summary ---
+
+Benchmark: cuad.json
+---------------------
+Recall@5:       100.00%
+MRR:            1.000
+BERTScore F1:   0.7936
+chrF Score:     4.48
+BLEU Score:     0.26
+Token F1:       2.21%
+Exact Match:    0.00%
+Avg Latency:    0.21 sec
+(Total Questions: 4034)
+
+Benchmark: privacy_qa.json
+---------------------------
+Recall@5:       100.00%
+MRR:            1.000
+BERTScore F1:   0.8084
+chrF Score:     4.41
+BLEU Score:     0.38
+Token F1:       2.30%
+Exact Match:    0.00%
+Avg Latency:    0.26 sec
+(Total Questions: 194)
+
+Benchmark: contractnli.json
+----------------------------
+Recall@5:       100.00%
+MRR:            1.000
+BERTScore F1:   0.8010
+chrF Score:     4.94
+BLEU Score:     0.64
+Token F1:       3.27%
+Exact Match:    0.00%
+Avg Latency:    0.21 sec
+(Total Questions: 977)
+
+Benchmark: maud.json
+---------------------
+Recall@5:       100.00%
+MRR:            1.000
+BERTScore F1:   0.7936
+chrF Score:     4.43
+BLEU Score:     1.07
+Token F1:       1.08%
+Exact Match:    0.00%
+Avg Latency:    0.22 sec
+(Total Questions: 1676)
+
+
+--- Overall Average Scores ---
+Recall@5:       100.00%
+MRR:            1.000
+BERTScore F1:   0.7951
+chrF Score:     4.53
+BLEU Score:     0.51
+Token F1:       2.09%
+Exact Match:    0.00%
+Avg Latency:    0.21 sec
+(Total Questions: 6881)
+
+
+--- Metric Notes ---
+ - 'Grounded Answers' / 'Hallucination Rate' (Faithfulness) metrics were not calculated.
+   This requires a separate 'LLM-as-a-Judge' step to score the model answer
+   against the retrieved sources, which is a different, more complex evaluation.
+ - chrF/BLEU scores range from 0-100. Higher is better.
+ - BERTScore F1 ranges from 0-1. Higher is better. (A score of 0.90+ is excellent).
