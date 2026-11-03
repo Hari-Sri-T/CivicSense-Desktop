@@ -37,7 +37,7 @@ def collect_notices(destination):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--version", default="0.1.0-preview.2")
+    parser.add_argument("--version", default="0.1.0-preview.3")
     args = parser.parse_args()
     if not re.fullmatch(r"[0-9A-Za-z][0-9A-Za-z.+-]*", args.version):
         parser.error("Invalid release version")
@@ -61,6 +61,9 @@ def main():
         subprocess.run([compiler, f"/DAppVersion={args.version}", f"/DSourceDir={bundle}",
                         f"/DOutputDir={output}", str(root / "packaging/windows.iss")], check=True)
     elif sys.platform == "darwin":
+        # Adding first-run notes and licenses changes the bundle resource seal.
+        subprocess.run(["codesign", "--force", "--deep", "--sign", "-", str(bundle)], check=True)
+        subprocess.run(["codesign", "--verify", "--deep", "--strict", str(bundle)], check=True)
         name = f"CivicSense-macOS-{architecture}"
         subprocess.run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", str(bundle), str(output / f"{name}.zip")], check=True)
         with tempfile.TemporaryDirectory(prefix="civicsense-dmg-", dir=root / "dist") as directory:

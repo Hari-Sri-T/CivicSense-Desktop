@@ -205,7 +205,7 @@ python -m pip install -r requirements-build.txt --extra-index-url https://abetle
 # Linux only:
 python -m pip install 'pywebview[qt]'
 python scripts/build_desktop.py
-python scripts/package_desktop.py --version 0.1.0-preview.2
+python scripts/package_desktop.py --version 0.1.0-preview.3
 ```
 
 Windows installer creation also requires Inno Setup 6. macOS disk images use `hdiutil`; Linux archives use Python's tar support. The build bundles Python and runtime dependencies, **not model weights, credentials or personal documents**. The app downloads model weights into the user's cache when needed.
