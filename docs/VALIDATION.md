@@ -17,3 +17,8 @@ The black/grey surfaces, blue model/control accents and keyboard text resizing w
 The branded startup screen was checked through loading, download messages, setup failure, retry, readiness and dismissal into model settings. The generated PNG loaded successfully. All 28 Python/browser checks passed after this change; the existing upload/query/source UI check also passed. `docs/loading-preview.png` captures a simulated loading state for visual review, not a runtime benchmark.
 
 Desktop packaging verification: the Linux x64 PyInstaller bundle passed its offline native/resource diagnostic and a real-model question using cached Qwen/MiniLM. Its native window opened and loaded the packaged interface. The saved answer correctly stated seven days’ written notice. All 30 source/browser/packaging checks passed. Windows/macOS packages are built and checked by the release workflow; signing/notarization remains unconfigured.
+
+Release v0.1.0-preview.3: GitHub Actions successfully built Windows x64 (installer and portable ZIP), macOS arm64 (DMG and APP ZIP), and Linux x64 (tar.gz). Each frozen executable passed its dependency/resource/PDF self-test; macOS packaging refreshed and verified the final bundle’s ad-hoc signature. Assets and combined checksums were published successfully. The clean test matrix also passed on Windows, macOS and Linux. Interactive Windows/macOS testing, publisher signing and Apple notarization remain unverified/unconfigured.
+
+Build record: https://github.com/Hari-Sri-T/CivicSense-Desktop/actions/runs/41706144619
+Release: https://github.com/Hari-Sri-T/CivicSense-Desktop/releases/tag/v0.1.0-preview.3

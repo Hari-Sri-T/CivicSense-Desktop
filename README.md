@@ -11,14 +11,14 @@ Upload a **PDF, DOCX or TXT**, ask a question, and inspect the answer alongside 
 
 ## Download and run — no Python installation
 
-Open [GitHub Releases](https://github.com/Hari-Sri-T/CivicSense-Desktop/releases) and choose the package matching your operating system and processor. The first desktop release is a **preview**. Download availability is determined by the release assets; a source ZIP is not an executable app.
+Open [GitHub Releases](https://github.com/Hari-Sri-T/CivicSense-Desktop/releases) and choose the package matching your operating system and processor. The current desktop release is [**v0.1.0-preview.3**](https://github.com/Hari-Sri-T/CivicSense-Desktop/releases/tag/v0.1.0-preview.3). All three native package builds and their frozen-app checks passed. This remains a **preview**. Download availability is determined by the release assets; a source ZIP is not an executable app.
 
 | Computer | Package | How to start |
 |---|---|---|
-| Windows 10/11, x64 | `CivicSense-Windows-x64-Setup.exe` | Run the installer, then open CivicSense from the Start menu. Installation is per user. |
-| Windows 10/11, x64 — portable | `CivicSense-Windows-x64.zip` | Extract the whole ZIP, then open `CivicSense/CivicSense.exe`. Keep `_internal` beside the executable. |
-| macOS 14+, Apple Silicon | `CivicSense-macOS-arm64.dmg` | Open the disk image, drag `CivicSense.app` to Applications, then open it. A ZIP containing the `.app` is also provided. |
-| Linux, x64 | `CivicSense-Linux-x64.tar.gz` | Extract the archive and run `CivicSense/CivicSense` from the extracted folder. |
+| Windows 10/11, x64 | [CivicSense-Windows-x64-Setup.exe](https://github.com/Hari-Sri-T/CivicSense-Desktop/releases/download/v0.1.0-preview.3/CivicSense-Windows-x64-Setup.exe) | Run the installer, then open CivicSense from the Start menu. Installation is per user. |
+| Windows 10/11, x64 — portable | [CivicSense-Windows-x64.zip](https://github.com/Hari-Sri-T/CivicSense-Desktop/releases/download/v0.1.0-preview.3/CivicSense-Windows-x64.zip) | Extract the whole ZIP, then open `CivicSense/CivicSense.exe`. Keep `_internal` beside the executable. |
+| macOS 14+, Apple Silicon | [CivicSense-macOS-arm64.dmg](https://github.com/Hari-Sri-T/CivicSense-Desktop/releases/download/v0.1.0-preview.3/CivicSense-macOS-arm64.dmg) | Open the disk image, drag `CivicSense.app` to Applications, then open it. A ZIP containing the `.app` is also provided. |
+| Linux, x64 | [CivicSense-Linux-x64.tar.gz](https://github.com/Hari-Sri-T/CivicSense-Desktop/releases/download/v0.1.0-preview.3/CivicSense-Linux-x64.tar.gz) | Extract the archive and run `CivicSense/CivicSense` from the extracted folder. |
 
 For Linux, the terminal commands are:
 
